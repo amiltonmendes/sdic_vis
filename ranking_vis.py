@@ -6,70 +6,79 @@ Here's our first attempt at using data to create a table:
 import pandas as pd
 import streamlit as st
 import pandas as pd
+import locale
+
+
 st.set_page_config(layout="wide")
 
 @st.cache_data
 def load_data():
+    locale._override_localeconv = {'thousands_sep': '.'}
     return pd.read_csv('./raw_data_ranking_ice_2020.csv')
 
 df = load_data()
 
 
-##TODO resolver
+
+        
+
+# Inicialização de sessão
+if 'slider_CapacidadesAtuais' not in st.session_state:
+    st.session_state['slider_CapacidadesAtuais'] = (33,66)
+if 'slider_Oportunidades' not in st.session_state:
+    st.session_state['slider_Oportunidades'] = (33,66)
+if 'slider_Ganhos' not in st.session_state:
+    st.session_state['slider_Ganhos'] = 50
+
+
 
 #with st.form("Configurações"):
-st.markdown('### Peso das Capacidades Atuais ( 0,3 )')
-header = st.columns([1,1,1])
-header[0].markdown('#### Valor exportado')
-header[1].markdown('#### Vantagens comparativas relativas')
-header[2].markdown('#### Densidade do produto')
-
-rowCapacidadesAtuais = st.columns([1,1,1])
-pesoExportacao = rowCapacidadesAtuais[0].slider('Exp.', 0, 100, 33, label_visibility='hidden')
-pesoVcr = rowCapacidadesAtuais[1].slider('Vcr.', 0, 100, 33, label_visibility='hidden')
-pesoDensidade = rowCapacidadesAtuais[2].slider('Dens.', 0, 100, 33, label_visibility='hidden')
+header = st.columns([1,1,1,2])
+header[0].markdown('#### Capacidades Atuais')
+header[1].markdown('<div style="text-align: right;">Valor exportado: '+str(float(st.session_state['slider_CapacidadesAtuais'][0]/100))+'</div>',unsafe_allow_html=True)
+header[1].markdown('<div style="text-align: right;">Vantagens comparativas relativas: '+str(float((st.session_state['slider_CapacidadesAtuais'][1]-st.session_state['slider_CapacidadesAtuais'][0])/100))+'</div>',unsafe_allow_html=True)
+header[1].markdown('<div style="text-align: right;">Densidade do produto: '+str(float((100-st.session_state['slider_CapacidadesAtuais'][1])/100)) +'</div>',unsafe_allow_html=True)
+sliderCapacidades = header[3].slider('Capacidades.', 0, 100, key='slider_CapacidadesAtuais', label_visibility='hidden')
 
 
 
-st.markdown('### Oportunidades de mercado ( 0,3 )')
-header = st.columns([1,1,1])
-header[0].markdown('#### Valor importado')
-header[1].markdown('#### Valor importado (Mundo)')
-header[2].markdown('#### Desvantagem comparativa relativa')
+header = st.columns([1,1,1,2])
+header[0].markdown('#### Oportunidades de mercado')
+header[1].markdown('<div style="text-align: right;">Valor importado: '+str(float(st.session_state['slider_Oportunidades'][0]/100))+'</div>',unsafe_allow_html=True)
+header[1].markdown('<div style="text-align: right;">Valor importado (Mundo): '+str(float((st.session_state['slider_Oportunidades'][1]-st.session_state['slider_Oportunidades'][0])/100))+'</div>',unsafe_allow_html=True)
+header[1].markdown('<div style="text-align: right;">Desvantagem comparativa relativa: '+str(float((100-st.session_state['slider_Oportunidades'][1])/100))+'</div>',unsafe_allow_html=True)
 
-rowOportunidades = st.columns([1,1,1])
-pesoImportacao = rowOportunidades[0].slider('Imp.', 0, 100, 33, label_visibility='hidden')
-pesoimpTotal = rowOportunidades[1].slider('ImpTotal.', 0, 100, 33, label_visibility='hidden')
-pesoDcr = rowOportunidades[2].slider('Dcr.', 0, 100, 33, label_visibility='hidden')
+sliderOportunidades = header[3].slider('Oportunidades.', 0, 100, key='slider_Oportunidades', label_visibility='hidden')
 
-st.markdown('### Análise de ganhos ( 0,5 )')
-header = st.columns([1,1])
-header[0].markdown('#### Índice de Complexidade do Produto')
-header[1].markdown('#### Índice de Ganho de Oportunidade')
 
-rowGanhos = st.columns([1,1])
-pesoComplexidade = rowGanhos[0].slider('Comp.', 0, 100, 50, label_visibility='hidden')
-pesoGo = rowGanhos[1].slider('Go.', 0, 100, 50, label_visibility='hidden')
+
+header = st.columns([1,1,1,2])
+header[0].markdown('#### Análise de ganhos')
+header[1].markdown('<div style="text-align: right;">Índice de Complexidade do Produto: '+str(float(st.session_state['slider_Ganhos']/100))+'</div>',unsafe_allow_html=True)
+header[1].markdown('<div style="text-align: right;">Índice de Ganho de Oportunidade: '+str(float((100-st.session_state['slider_Ganhos'])/100))+'</div>',unsafe_allow_html=True)
+
+sliderGamnhos = header[3].slider('Oportunidades.', 0, 100, key='slider_Ganhos', label_visibility='hidden')
+
 
 #st.form_submit_button('Atualizar ranking')
 
 ###Capacidades Atuais
-peso_valor_exportado = pesoExportacao/100
-peso_vcr = pesoVcr/100
-peso_densidade_produto = pesoDensidade/100
+peso_valor_exportado = st.session_state['slider_CapacidadesAtuais'][0]/100
+peso_vcr = (st.session_state['slider_CapacidadesAtuais'][1]-st.session_state['slider_CapacidadesAtuais'][0])/100
+peso_densidade_produto = (100-st.session_state['slider_CapacidadesAtuais'][1])/100
 
 peso_capacidade_atuais = 0.33
 
 #Oportunidades de mercado
-peso_valor_importado = pesoImportacao/100
-peso_valor_importado_total = pesoimpTotal/100
-peso_dcr = pesoDcr/100
+peso_valor_importado = st.session_state['slider_Oportunidades'][0]/100
+peso_valor_importado_total = (st.session_state['slider_Oportunidades'][1]-st.session_state['slider_Oportunidades'][0])/100
+peso_dcr = (100-st.session_state['slider_Oportunidades'][1])/100
 
 peso_oportunidaes = 0.33
 
 #Análise de ganhos
-peso_complexidade_produto = pesoComplexidade/100
-peso_igo = pesoGo/100
+peso_complexidade_produto = st.session_state['slider_Ganhos']/100
+peso_igo = (100-st.session_state['slider_Ganhos'])/100
 peso_ganhos = 0.5
 
 
@@ -84,6 +93,13 @@ df['valor_indice'] = peso_capacidade_atuais*(peso_valor_exportado*df['export_val
 df_plot = df[['hs_product_code','hs_product_name_short_en','export_value','rca','density','import_value','import_value_total','rcd','pci','cog','valor_indice']]
 
 
+df_plot['hs_product_code'] = df_plot['hs_product_code'].apply(str)
+
+df_plot['rca'] = df_plot['rca'].map('{:.2f}'.format)
+df_plot['density'] = df_plot['density'].map('{:.2f}'.format)
+df_plot['rcd'] = df_plot['rcd'].map('{:.2f}'.format)
+df_plot['pci'] = df_plot['pci'].map('{:.2f}'.format)
+df_plot['cog'] = df_plot['cog'].map('{:.2f}'.format)
 
 
 df_plot['export_value'] = df_plot['export_value']/1000000
