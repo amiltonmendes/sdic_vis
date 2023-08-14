@@ -118,6 +118,10 @@ df_plot['import_value_total'] = df_plot['import_value_total'].map('${:,.2f}'.for
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 
+filtro_sh4 = st.text_input('Digite o SH4 desejado:')
+df_plot = df_plot[df_plot['hs_product_code'].str.startswith(filtro_sh4)]
 
 df_plot = df_plot.rename(columns={'hs_product_code' : ' Código HS 2007','hs_product_name_short_en': 'Descrição', 'export_value' : 'Exp (Milhões)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank'} )
+
+
 st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
