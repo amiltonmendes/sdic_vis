@@ -14,7 +14,9 @@ st.set_page_config(layout="wide")
 @st.cache_data
 def load_data():
     locale._override_localeconv = {'thousands_sep': '.'}
-    return pd.read_csv('./raw_data_ranking_ice_2020.csv')
+    retorno = pd.read_csv('./raw_data_ranking_ice_2021_sh4_corrigido.csv')
+    retorno = retorno[retorno['rca']<1]
+    return retorno
 
 df = load_data()
 
