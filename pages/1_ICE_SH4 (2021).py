@@ -14,7 +14,7 @@ st.set_page_config(layout="wide")
 @st.cache_data
 def load_data():
     locale._override_localeconv = {'thousands_sep': '.'}
-    retorno = pd.read_csv('./raw_data_ice_2021_pgi.csv')
+    retorno = pd.read_csv('./raw_data_ice2021_pgi_pei.csv')
     retorno['complementar_pgi'] = 1-retorno['pgi']
     retorno = retorno[retorno['rca']<1]
     return retorno
@@ -58,6 +58,10 @@ row = st.columns([1,2,5])
 peso_pgi=row[0].number_input('PGI',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 row[1].text('Product Gini index')
 
+row = st.columns([1,2,5])
+peso_pei=row[0].number_input('PEI',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+row[1].text('Product Emission Intensity index')
+
 
 row = st.columns([1,7])
 peso_ganhos=row[0].number_input('Ganhos',min_value=0.0,max_value=1.0,value=0.3,label_visibility='collapsed')
@@ -98,10 +102,11 @@ df['valor_indice'] = peso_capacidade_atuais*(peso_valor_exportado*df['export_val
                                                               peso_vcr*df['rca_standarized'] + peso_densidade_produto*df['density_standarized'])+\
     peso_oportunidaes*(peso_valor_importado*df['import_value_standarized'] + peso_valor_importado_total*df['import_value_total_standarized']\
                    + peso_dcr*df['rcd_standarized']) + \
-     peso_ganhos*(peso_complexidade_produto*df['pci_standarized'] + peso_igo*df['cog_standarized'])  + peso_pgi*df['pgi']          
+     peso_ganhos*(peso_complexidade_produto*df['pci_standarized'] + peso_igo*df['cog_standarized'])  + peso_pgi*df['pgi_standirized']   \
+        + peso_pei*df['pei_inverted']
 
 
-df_plot = df[['hs_product_code','hs_product_name_short_en','export_value','rca','density','import_value','import_value_total','rcd','pci','cog','valor_indice','pgi']]
+df_plot = df[['hs_product_code','hs_product_name_short_en','export_value','rca','density','import_value','import_value_total','rcd','pci','cog','valor_indice','pgi','pei']]
 
 
 df_plot['hs_product_code'] = df_plot['hs_product_code'].apply(str)
@@ -111,6 +116,7 @@ df_plot['density'] = df_plot['density'].map('{:.2f}'.format)
 df_plot['rcd'] = df_plot['rcd'].map('{:.2f}'.format)
 df_plot['pci'] = df_plot['pci'].map('{:.2f}'.format)
 df_plot['cog'] = df_plot['cog'].map('{:.2f}'.format)
+df_plot['pgi'] = df_plot['pgi'].map('{:.2f}'.format)
 
 
 df_plot['export_value'] = df_plot['export_value']/1000000
@@ -122,6 +128,8 @@ df_plot['import_value'] = df_plot['import_value'].map('${:,.2f}'.format)
 df_plot['import_value_total'] = df_plot['import_value_total']/1000000
 df_plot['import_value_total'] = df_plot['import_value_total'].map('${:,.2f}'.format)
 
+df_plot['pei'] = df_plot['pei']/1000
+df_plot['pei'] = df_plot['pei'].map('${:,.2f}'.format)
 
 
 
@@ -130,7 +138,7 @@ df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 filtro_sh4 = st.text_input('Digite o SH4 desejado:')
 df_plot = df_plot[df_plot['hs_product_code'].str.startswith(filtro_sh4)]
 
-df_plot = df_plot.rename(columns={'hs_product_code' : ' Código HS 2007','hs_product_name_short_en': 'Descrição', 'export_value' : 'Exp (Milhões)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank','pgi' : 'PGI'} )
+df_plot = df_plot.rename(columns={'hs_product_code' : ' Código HS 2007','hs_product_name_short_en': 'Descrição', 'export_value' : 'Exp (Milhões)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank','pgi' : 'PGI', 'pei' : 'PEI (Mil)'} )
 
 
 st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
