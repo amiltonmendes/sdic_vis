@@ -129,7 +129,7 @@ df_plot['import_value_total'] = df_plot['import_value_total']/1000000
 df_plot['import_value_total'] = df_plot['import_value_total'].map('${:,.2f}'.format)
 
 df_plot['pei'] = df_plot['pei']/1000
-df_plot['pei'] = df_plot['pei'].map('${:,.2f}'.format)
+df_plot['pei'] = df_plot['pei'].map('{:,.2f}'.format)
 
 
 
