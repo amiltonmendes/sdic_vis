@@ -48,7 +48,7 @@ with row[1].expander("Capacidades atuais"):
     header = st.columns([1,1,1,2])
     #header[0].markdown('#### Capacidades Atuais')
     header[1].markdown('<div style="text-align: right;">Valor exportado: '+str(float(st.session_state['slider_CapacidadesAtuais'][0]/100))+'</div>',unsafe_allow_html=True)
-    header[1].markdown('<div style="text-align: right;">Vantagens comparativas revelada: '+str(float((st.session_state['slider_CapacidadesAtuais'][1]-st.session_state['slider_CapacidadesAtuais'][0])/100))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Vantagem comparativa revelada: '+str(float((st.session_state['slider_CapacidadesAtuais'][1]-st.session_state['slider_CapacidadesAtuais'][0])/100))+'</div>',unsafe_allow_html=True)
     header[1].markdown('<div style="text-align: right;">Densidade do produto: '+str(float((100-st.session_state['slider_CapacidadesAtuais'][1])/100)) +'</div>',unsafe_allow_html=True)
     
     sliderCapacidades = header[3].slider('Capacidades.', 0, 100, key='slider_CapacidadesAtuais', label_visibility='hidden')
@@ -66,7 +66,7 @@ with row[1].expander("Oportunidades de mercado"):
 
 
     header = st.columns([1,1,1,1,1])
-    header[1].markdown('<div style="text-align: right;">Desvantagem comparativa relativa: '+str(float(st.session_state['peso_dcr']))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Desvantagem comparativa revelada: '+str(float(st.session_state['peso_dcr']))+'</div>',unsafe_allow_html=True)
     header[3].number_input('DCR',min_value=0.0,max_value=1.0,key='peso_dcr',label_visibility='collapsed')
 
 

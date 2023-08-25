@@ -47,9 +47,9 @@ peso_capacidade_atuais = row[0].number_input('Insert a number',min_value=0.0,max
 with row[1].expander("Capacidades atuais"):
     header = st.columns([1,1,1,2])
     #header[0].markdown('#### Capacidades Atuais')
-    header[1].markdown('<div style="text-align: right;">Valor exportado: '+str(float(st.session_state['slider_CapacidadesAtuais'][0]/100))+'</div>',unsafe_allow_html=True)
-    header[1].markdown('<div style="text-align: right;">Vantagem comparativa revelada: '+str(float((st.session_state['slider_CapacidadesAtuais'][1]-st.session_state['slider_CapacidadesAtuais'][0])/100))+'</div>',unsafe_allow_html=True)
-    header[1].markdown('<div style="text-align: right;">Densidade do produto: '+str(float((100-st.session_state['slider_CapacidadesAtuais'][1])/100)) +'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Valor exportado: '+"{:.2f}".format(float(st.session_state['slider_CapacidadesAtuais'][0]/100))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Vantagem comparativa revelada: '+"{:.2f}".format(float((st.session_state['slider_CapacidadesAtuais'][1]-st.session_state['slider_CapacidadesAtuais'][0])/100))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Densidade do produto: '+"{:.2f}".format(float((100-st.session_state['slider_CapacidadesAtuais'][1])/100)) +'</div>',unsafe_allow_html=True)
     
     sliderCapacidades = header[3].slider('Capacidades.', 0, 100, key='slider_CapacidadesAtuais', label_visibility='hidden')
 
@@ -61,17 +61,17 @@ with row[1].expander("Oportunidades de mercado"):
     header[3].number_input('Importacao',min_value=0.0,max_value=1.0,key='peso_importacao',label_visibility='collapsed')
 
     header = st.columns([1,1,1,1,1])
-    header[1].markdown('<div style="text-align: right;">Valor importado (Mundo): '+str(float(st.session_state['peso_importacao_global']))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Valor importado (Mundo): '+"{:.2f}".format(float(st.session_state['peso_importacao_global']))+'</div>',unsafe_allow_html=True)
     header[3].number_input('ImportacaoGlobal',min_value=0.0,max_value=1.0,key='peso_importacao_global',label_visibility='collapsed')
 
 
     header = st.columns([1,1,1,1,1])
-    header[1].markdown('<div style="text-align: right;">Desvantagem comparativa revelada: '+str(float(st.session_state['peso_dcr']))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Desvantagem comparativa revelada: '+"{:.2f}".format(float(st.session_state['peso_dcr']))+'</div>',unsafe_allow_html=True)
     header[3].number_input('DCR',min_value=0.0,max_value=1.0,key='peso_dcr',label_visibility='collapsed')
 
 
     header = st.columns([1,1,1,1,1])
-    header[1].markdown('<div style="text-align: right;">Crescimento: '+str(float(st.session_state['peso_crescimento']))+'</div>',unsafe_allow_html=True)
+    header[1].markdown('<div style="text-align: right;">Crescimento: '+"{:.2f}".format(float(st.session_state['peso_crescimento']))+'</div>',unsafe_allow_html=True)
     header[3].number_input('Crescimento',min_value=0.0,max_value=1.0,key='peso_crescimento',label_visibility='collapsed')
     #sliderOportunidades = header[3].slider('Oportunidades.', 0, 100, key='slider_Oportunidades', label_visibility='hidden')
 
