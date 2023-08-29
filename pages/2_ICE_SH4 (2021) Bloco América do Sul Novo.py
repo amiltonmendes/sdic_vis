@@ -21,140 +21,108 @@ def load_data():
 
 df = load_data()
 
-# Inicialização de sessão
-if 'slider_CapacidadesAtuais' not in st.session_state:
-    st.session_state['slider_CapacidadesAtuais'] = (33,66)
-if 'slider_Oportunidades' not in st.session_state:
-    st.session_state['slider_Oportunidades'] = (33,66)
-if 'slider_Ganhos' not in st.session_state:
-    st.session_state['slider_Ganhos'] = 50
-if 'peso_crescimento' not in st.session_state:
-    st.session_state['peso_crescimento'] = 0.25
-if 'peso_importacao_global' not in st.session_state:
-    st.session_state['peso_importacao_global'] = 0.25
-if 'peso_importacao' not in st.session_state:
-    st.session_state['peso_importacao'] = 0.25
-if 'peso_dcr' not in st.session_state:
-    st.session_state['peso_dcr'] = 0.25
-
 
 tab1, tab2, tab3, tab4 = st.tabs(["Capacidades atuais", "Oportunidades", "Ganhos de complexidade","Externalidades"])
 
 with tab1:
 
-    row = st.columns([1,1,4])
-    row[0].markdown('#### <div style="text-align: right;">Capacidades atuais</div>',unsafe_allow_html=True)
-    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
-    #header[0].markdown('#### Capacidades Atuais')
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
+    row[0].markdown('#### <div style="text-align: right;">Capacidades atuais</div>',unsafe_allow_html=True,help="Teste")
+    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed')
+    row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">Valor exportado</div>',unsafe_allow_html=True)
-    peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
 
-
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">Vantagem comparativa revelada</div>',unsafe_allow_html=True)
-    peso_vcr = row[1].number_input('vcr',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_vcr = row[1].number_input('vcr',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
 
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">Densidade do produto</div>',unsafe_allow_html=True)
-    peso_densidade_produto = row[1].number_input('densidade',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_densidade_produto = row[1].number_input('densidade',min_value=0.0,max_value=0.8,value=0.33,label_visibility='collapsed')
 
 
 with tab2:
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">Oportunidades</div>',unsafe_allow_html=True)
-    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed')
 
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">Valor importado</div>',unsafe_allow_html=True)
-    peso_importacao = row[1].number_input('peso_importacao',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_importacao = row[1].number_input('peso_importacao',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed')
 
 
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">Valor importado (Mundo)</div>',unsafe_allow_html=True)
-    peso_importacao_global = row[1].number_input('Importacao Global',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_importacao_global = row[1].number_input('Importacao Global',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed')
 
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">Desvantagem comparativa revelada</div>',unsafe_allow_html=True)
+    peso_dcr = row[1].number_input('DCR',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed')
+
+    row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">Crescimento de importações (2021 - 2013)</div>',unsafe_allow_html=True)
-    peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
 
 
 
 with tab3:
-   st.header("An owl")
-   st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+    row = st.columns([2,1,4])
+    row[0].markdown('#### <div style="text-align: right;">Ganhos de complexidade</div>',unsafe_allow_html=True)
+    peso_ganhos=row[1].number_input('Ganhos',min_value=0.4,max_value=0.8,value=0.5,label_visibility='collapsed')
+
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">Índice de Complexidade do Produto</div>',unsafe_allow_html=True)
+    peso_indice_complexidade = row[1].number_input('Índice complexidade',min_value=0.3,max_value=0.8,value=0.5,label_visibility='collapsed')
+
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">Índice de Ganho de Oportunidade</div>',unsafe_allow_html=True)
+    peso_indice_ganho_oportunidade = row[1].number_input('Ganho oportunidade',min_value=0.3,max_value=0.8,value=0.5,label_visibility='collapsed')
+
+
         
 with tab4:
 
-    row = st.columns([1,1,4])
+    row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">Externalidades</div>',unsafe_allow_html=True)
-    peso_externalidades = row[1].number_input('externalidades',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_externalidades = row[1].number_input('externalidades',min_value=0.0,max_value=0.2,value=0.1,label_visibility='collapsed')
+
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">Product Gini index</div>',unsafe_allow_html=True)
+    peso_pgi = row[1].number_input('peso_pgi',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
+
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">Product Emission Intensity index</div>',unsafe_allow_html=True)
+    peso_pei = row[1].number_input('PEI',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
-    row = st.columns([1,2,5])
-    peso_pgi=row[0].number_input('PGI',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
-    row[1].text('Product Gini index')
-
-    row = st.columns([1,2,5])
-    peso_pei=row[0].number_input('PEI',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
-    row[1].text('Product Emission Intensity index')
-
-    row = st.columns([1,2,5])
-    peso_dcr_bloco=row[0].number_input('DCR_bloco',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
-    row[1].text('DCR AMS(-Brazil)')
-
-    row = st.columns([1,2,5])
-    peso_proporcao_importacao_brasil_ams=row[0].number_input('Proporcao_importacao_bloco',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
-    row[1].text('Proporção importação AMS - Brazil')
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">Impacto no bloco América do Sul, exceto Brasil</div>',unsafe_allow_html=True)
+    peso_impacto_ams = row[1].number_input('Impacto AMS',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
 
-#with row[1].expander("# Capacidades atuais"):
-
-
-
-
-row = st.columns([1,7])
-peso_ganhos=row[0].number_input('Ganhos',min_value=0.0,max_value=1.0,value=0.3,label_visibility='collapsed')
-
-with row[1].expander("Ganhos de complexidade"):
-    header = st.columns([1,1,1,2])
-    #header[0].markdown('#### Análise de ganhos')
-    header[1].markdown('<div style="text-align: right;">Índice de Complexidade do Produto: '+str(float(st.session_state['slider_Ganhos']/100))+'</div>',unsafe_allow_html=True)
-    header[1].markdown('<div style="text-align: right;">Índice de Ganho de Oportunidade: '+str(float((100-st.session_state['slider_Ganhos'])/100))+'</div>',unsafe_allow_html=True)
-
-    sliderGamnhos = header[3].slider('Oportunidades.', 0, 100, key='slider_Ganhos', label_visibility='hidden')
-
-
-#st.form_submit_button('Atualizar ranking')
 
 ###Capacidades Atuais
 
 
-#peso_capacidade_atuais = 0.33
+componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
+    (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])
+    
+componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
+                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] ) 
 
-#Oportunidades de mercado
-peso_valor_importado = st.session_state['peso_importacao']
-peso_valor_importado_total = st.session_state['peso_importacao_global']
-peso_dcr = st.session_state['peso_dcr']
-peso_crescimento = st.session_state['peso_crescimento']
+componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_gt_mean'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
 
-#peso_oportunidaes = 0.33
+#Criar o indice de impacto AMS
+df['impacto_ams'] = 1 - df['proporcao_importacao_origem_brasil']
+df.loc[df['dcr_bloco']<1,'impacto_ams'] = 0
 
-#Análise de ganhos
-peso_complexidade_produto = st.session_state['slider_Ganhos']/100
-peso_igo = (100-st.session_state['slider_Ganhos'])/100
-#peso_ganhos = 0.5
-
+componentes_externalidades = peso_externalidades/(peso_impacto_ams+peso_pei+peso_pgi)*(peso_pei*df['pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted'] + peso_impacto_ams*df['impacto_ams'])
 
 
-df['valor_indice'] = peso_capacidade_atuais*(peso_valor_exportado*df['export_value_normalized'] + \
-                                                              peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])+\
-    (peso_oportunidaes/(peso_valor_importado+peso_valor_importado_total+peso_dcr+peso_crescimento))*(peso_valor_importado*df['import_value_normalized'] + peso_valor_importado_total*df['import_value_total_normalized']\
-                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] ) + \
-     peso_ganhos*(peso_complexidade_produto*df['pci_gt_mean'] + peso_igo*df['cog_normalized'])  + peso_pgi*df['pgi_normalized_inverted']   \
-        + peso_pei*df['pei_normalized_inverted'] + peso_dcr_bloco*df['dcr_bloco_normalized'] + peso_proporcao_importacao_brasil_ams*df['proporcao_importacao_origem_brasil']
+df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades + componente_ganhos + componentes_externalidades
 
 
 df_plot = df[['valor_indice','hs_product_code','hs_product_name_short_en','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
