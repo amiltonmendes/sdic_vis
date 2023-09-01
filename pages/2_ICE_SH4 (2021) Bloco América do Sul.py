@@ -38,7 +38,7 @@ with tab1:
     peso_vcr = row[1].number_input('vcr',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">1.3 Oportunidade do produto</div>',unsafe_allow_html=True,help="Peso da oportunidade (densidade) do produto.\nValores mais altos de densidade indicam uma maior proximidade de determinado produto com a estrutura produtiva atual do país do que outros com valores de densidade mais baixos.")
+    row[0].markdown('##### <div style="text-align: right;">1.3 Proximidade do produto</div>',unsafe_allow_html=True,help="Peso da proximidade (densidade) do produto.\nValores mais altos de densidade indicam uma maior proximidade de determinado produto com a estrutura produtiva atual do país do que outros com valores de densidade mais baixos.")
     peso_densidade_produto = row[1].number_input('densidade',min_value=0.0,max_value=0.8,value=0.33,label_visibility='collapsed')
 
 
