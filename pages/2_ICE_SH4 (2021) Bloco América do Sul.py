@@ -65,7 +65,7 @@ with tab2:
     peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.5 Impacto no bloco América do Sul,<br> exceto Brasil</div>',unsafe_allow_html=True,help="Impacto no bloco América do Sul, exceto Brasil. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
+    row[0].markdown('##### <div style="text-align: right;">2.5 Oportunidades de integração com América do Sul</div>',unsafe_allow_html=True,help="Impacto no bloco América do Sul, exceto Brasil. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
     peso_impacto_ams = row[1].number_input('Impacto AMS',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
