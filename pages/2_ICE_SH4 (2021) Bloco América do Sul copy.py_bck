@@ -27,24 +27,27 @@ tab1, tab2, tab3, tab4 = st.tabs(["1. Capacidades atuais", "2. Oportunidades", "
 with tab1:
 
     row = st.columns([2,1,4])
-    row[0].markdown('#### <div style="text-align: right;">1. <b>Capacidades atuais</b></div>',unsafe_allow_html=True,help='Peso dado ao grupo das variáveis abaixo no cálculo do ranking')
-    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed',help='teste')
-    row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">1.1 Valor exportado</div>',unsafe_allow_html=True, help="Peso do valor das exportações brasileiras do produto")
-    peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
+    row[0].markdown('#### <div style="text-align: left;">1. <b>Capacidades atuais</b></div>',unsafe_allow_html=True)
+    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed')
+    row[0].markdown('<div style="text-align: left;">Peso dado ao grupo das variáveis abaixo no cálculo do ranking</div>',unsafe_allow_html=True)
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">1.2 Vantagem comparativa revelada</div>',unsafe_allow_html=True, help="""Peso da vantagem comparativa revelada (VCR).\nValores de VCR acima de 1 indicam que o produto representa mais para a pauta exportadora brasileira do que a média mundial, ou seja, o país é competitivo em relação a esse produto.""")
+    row[0].markdown('##### <div style="text-align: left;">1.1 Valor exportado</div>',unsafe_allow_html=True)
+    peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
+    row[0].markdown('<div style="text-align: left;">Peso do valor das exportações brasileiras do produto</div>',unsafe_allow_html=True)
+
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: left;">1.2 Vantagem comparativa revelada</div>',unsafe_allow_html=True, help="""Peso da vantagem comparativa revelada (VCR).\nValores de VCR acima de 1 indicam que o produto representa mais para a pauta exportadora brasileira do que a média mundial, ou seja, o país é competitivo em relação a esse produto.""")
     peso_vcr = row[1].number_input('vcr',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">1.3 Oportunidade do produto</div>',unsafe_allow_html=True,help="Peso da oportunidade (densidade) do produto.\nValores mais altos de densidade indicam uma maior proximidade de determinado produto com a estrutura produtiva atual do país do que outros com valores de densidade mais baixos.")
+    row[0].markdown('##### <div style="text-align: left;">1.3 Densidade do produto</div>',unsafe_allow_html=True,help="Peso da densidade do produto.\nValores mais altos de densidade indicam uma maior proximidade de determinado produto com a estrutura produtiva atual do país do que outros com valores de densidade mais baixos.")
     peso_densidade_produto = row[1].number_input('densidade',min_value=0.0,max_value=0.8,value=0.33,label_visibility='collapsed')
 
 
 with tab2:
     row = st.columns([2,1,4])
-    row[0].markdown('#### <div style="text-align: right;">2. Oportunidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
+    row[0].markdown('#### <div style="text-align: left;">2. Oportunidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
     peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
@@ -65,7 +68,7 @@ with tab2:
     peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.5 Impacto no bloco América do Sul,<br> exceto Brasil</div>',unsafe_allow_html=True,help="Impacto no bloco América do Sul, exceto Brasil. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
+    row[0].markdown('##### <div style="text-align: right;">2.5 Impacto no bloco América do Sul, exceto Brasil</div>',unsafe_allow_html=True,help="Impacto no bloco América do Sul, exceto Brasil. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
     peso_impacto_ams = row[1].number_input('Impacto AMS',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
