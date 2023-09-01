@@ -28,24 +28,24 @@ with tab1:
 
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">1. <b>Capacidades atuais</b></div>',unsafe_allow_html=True,help='Peso dado ao grupo das variáveis abaixo no cálculo do ranking')
-    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed',help='teste')
+    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.2,max_value=1.0,value=0.3,label_visibility='collapsed',help='teste')
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">1.1 Valor exportado</div>',unsafe_allow_html=True, help="Peso do valor das exportações brasileiras do produto")
-    peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
+    peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">1.2 Vantagem comparativa revelada</div>',unsafe_allow_html=True, help="""Peso da vantagem comparativa revelada (VCR).\nValores de VCR acima de 1 indicam que o produto representa mais para a pauta exportadora brasileira do que a média mundial, ou seja, o país é competitivo em relação a esse produto.""")
-    peso_vcr = row[1].number_input('vcr',min_value=0.0,max_value=0.5,value=0.33,label_visibility='collapsed')
+    peso_vcr = row[1].number_input('vcr',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">1.3 Proximidade do produto</div>',unsafe_allow_html=True,help="Peso da proximidade (densidade) do produto.\nValores mais altos de densidade indicam uma maior proximidade de determinado produto com a estrutura produtiva atual do país do que outros com valores de densidade mais baixos.")
-    peso_densidade_produto = row[1].number_input('densidade',min_value=0.0,max_value=0.8,value=0.33,label_visibility='collapsed')
+    peso_densidade_produto = row[1].number_input('densidade',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
 with tab2:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">2. Oportunidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
-    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.2,max_value=0.4,value=0.3,label_visibility='collapsed')
+    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.2,max_value=1.0,value=0.3,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">2.1 Valor importado</div>',unsafe_allow_html=True,help="Peso das importações brasileiras do produto")
@@ -65,7 +65,7 @@ with tab2:
     peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.5 Oportunidades de integração com América do Sul</div>',unsafe_allow_html=True,help="Impacto no bloco América do Sul, exceto Brasil. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
+    row[0].markdown('##### <div style="text-align: right;">2.5 Oportunidades de integração com América do Sul</div>',unsafe_allow_html=True,help="Oportunidades de integração com América do Sul. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
     peso_impacto_ams = row[1].number_input('Impacto AMS',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
@@ -73,15 +73,15 @@ with tab2:
 with tab3:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">3. Ganhos de complexidade</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
-    peso_ganhos=row[1].number_input('Ganhos',min_value=0.4,max_value=0.8,value=0.5,label_visibility='collapsed')
+    peso_ganhos=row[1].number_input('Ganhos',min_value=0.4,max_value=1.0,value=0.5,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">3.1 Índice de Complexidade do Produto</div>',unsafe_allow_html=True, help="Peso do índice de complexidade do produto (ICP). Mede a diversidade e a sofisticação da expertise necessária para fabricar um produto. O ICP é calculado a partir de quantos outros países podem fabricar o produto, assim como a complexidade econômica desses países.")
-    peso_indice_complexidade = row[1].number_input('Índice complexidade',min_value=0.3,max_value=0.8,value=0.5,label_visibility='collapsed')
+    peso_indice_complexidade = row[1].number_input('Índice complexidade',min_value=0.3,max_value=1.0,value=0.5,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">3.2 Índice de Ganho de Oportunidade</div>',unsafe_allow_html=True,help="Peso do índice de ganho de oportunidade. O índice de ganho de oportunidade mede o quanto um país pode se beneficiar com a diversificação futura a partir do desenvolvimento de um produto em particular. Dessa forma, o valor estratégico de um produto é baseado nas possibilidades de diversificação para setores mais complexos que são abertas.")
-    peso_indice_ganho_oportunidade = row[1].number_input('Ganho oportunidade',min_value=0.3,max_value=0.8,value=0.5,label_visibility='collapsed')
+    peso_indice_ganho_oportunidade = row[1].number_input('Ganho oportunidade',min_value=0.3,max_value=1.0,value=0.5,label_visibility='collapsed')
 
 
         
@@ -89,7 +89,7 @@ with tab4:
 
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">4. Externalidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
-    peso_externalidades = row[1].number_input('externalidades',min_value=0.0,max_value=0.2,value=0.1,label_visibility='collapsed')
+    peso_externalidades = row[1].number_input('externalidades',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">4.1 Product Gini index</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de gini do produto ( PGI ). O PGI é calculado a partir da média do índice de gini dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. O índice de gini mede o quão desigual é a distribuição de renda de um país, ou seja, quanto maior, mais desigualdade de renda um país possui. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor desigualdade de renda.")
