@@ -85,20 +85,20 @@ with tab3:
 with tab4:
 
     row = st.columns([2,1,4])
-    row[0].markdown('#### <div style="text-align: right;">Externalidades</div>',unsafe_allow_html=True)
+    row[0].markdown('#### <div style="text-align: right;">Externalidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
     peso_externalidades = row[1].number_input('externalidades',min_value=0.0,max_value=0.2,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">Product Gini index</div>',unsafe_allow_html=True)
+    row[0].markdown('##### <div style="text-align: right;">Product Gini index</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de gini do produto ( PGI ). O PGI é calculado a partir da média do índice de gini dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. O índice de gini mede o quão desigual é a distribuição de renda de um país, ou seja, quanto maior, mais desigualdade de renda um país possui. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor desigualdade de renda.")
     peso_pgi = row[1].number_input('peso_pgi',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">Product Emission Intensity index</div>',unsafe_allow_html=True)
+    row[0].markdown('##### <div style="text-align: right;">Product Emission Intensity index</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de emissão de produto ( PEI ). O PEI é calculado a partir da média de emissões gases de efeito estufa dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor emissão de gases de efeito estufa.")
     peso_pei = row[1].number_input('PEI',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">Impacto no bloco América do Sul, exceto Brasil</div>',unsafe_allow_html=True)
+    row[0].markdown('##### <div style="text-align: right;">Impacto no bloco América do Sul, exceto Brasil</div>',unsafe_allow_html=True,help="Impacto no bloco América do Sul, exceto Brasil. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
     peso_impacto_ams = row[1].number_input('Impacto AMS',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
