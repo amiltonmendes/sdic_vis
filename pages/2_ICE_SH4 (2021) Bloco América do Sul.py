@@ -28,7 +28,7 @@ with tab1:
 
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">1. <b>Capacidades atuais</b></div>',unsafe_allow_html=True,help='Peso dado ao grupo das variáveis abaixo no cálculo do ranking')
-    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.2,max_value=1.0,value=0.3,label_visibility='collapsed',help='teste')
+    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.0,max_value=1.0,value=0.3,label_visibility='collapsed',help='teste')
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">1.1 Valor exportado</div>',unsafe_allow_html=True, help="Peso do valor das exportações brasileiras do produto")
     peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
@@ -45,7 +45,7 @@ with tab1:
 with tab2:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">2. Oportunidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
-    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.2,max_value=1.0,value=0.3,label_visibility='collapsed')
+    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.0,max_value=1.0,value=0.3,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">2.1 Valor importado</div>',unsafe_allow_html=True,help="Peso das importações brasileiras do produto")
@@ -73,7 +73,7 @@ with tab2:
 with tab3:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">3. Ganhos de complexidade</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
-    peso_ganhos=row[1].number_input('Ganhos',min_value=0.4,max_value=1.0,value=0.5,label_visibility='collapsed')
+    peso_ganhos=row[1].number_input('Ganhos',min_value=0.0,max_value=1.1,value=0.5,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">3.1 Índice de Complexidade do Produto</div>',unsafe_allow_html=True, help="Peso do índice de complexidade do produto (ICP). Mede a diversidade e a sofisticação da expertise necessária para fabricar um produto. O ICP é calculado a partir de quantos outros países podem fabricar o produto, assim como a complexidade econômica desses países.")
