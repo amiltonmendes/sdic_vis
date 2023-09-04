@@ -77,15 +77,15 @@ with tab2:
 with tab3:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">3. Ganhos de complexidade</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
-    peso_ganhos=row[1].number_input('Ganhos',min_value=0.0,max_value=1.1,value=0.5,label_visibility='collapsed')
+    peso_ganhos=row[1].number_input('Ganhos',min_value=0.0,max_value=1,value=0.5,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">3.1 Índice de Complexidade do Produto</div>',unsafe_allow_html=True, help="Peso do índice de complexidade do produto (ICP). Mede a diversidade e a sofisticação da expertise necessária para fabricar um produto. O ICP é calculado a partir de quantos outros países podem fabricar o produto, assim como a complexidade econômica desses países.")
-    peso_indice_complexidade = row[1].number_input('Índice complexidade',min_value=0.3,max_value=1.0,value=0.5,label_visibility='collapsed')
+    peso_indice_complexidade = row[1].number_input('Índice complexidade',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">3.2 Índice de Ganho de Oportunidade</div>',unsafe_allow_html=True,help="Peso do índice de ganho de oportunidade. O índice de ganho de oportunidade mede o quanto um país pode se beneficiar com a diversificação futura a partir do desenvolvimento de um produto em particular. Dessa forma, o valor estratégico de um produto é baseado nas possibilidades de diversificação para setores mais complexos que são abertas.")
-    peso_indice_ganho_oportunidade = row[1].number_input('Ganho oportunidade',min_value=0.3,max_value=1.0,value=0.5,label_visibility='collapsed')
+    peso_indice_ganho_oportunidade = row[1].number_input('Ganho oportunidade',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
 
 
         
