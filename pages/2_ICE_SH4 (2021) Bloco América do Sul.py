@@ -12,14 +12,18 @@ import locale
 st.set_page_config(layout="wide")
 
 @st.cache_data
-def load_data():
+def load_data(rca):
     locale._override_localeconv = {'thousands_sep': '.'}
-    retorno = pd.read_csv('./raw_indice_normalizado.csv')
-    
-    retorno = retorno[retorno['rca']<1]
+    retorno = pd.read_csv('./raw_indice_normalizado_port.csv')
+    if rca==False:
+        retorno = retorno[retorno['rca']<1]
     return retorno
 
-df = load_data()
+considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
+
+
+df = load_data(considerar_rca)
+
 
 
 tab1, tab2, tab3, tab4 = st.tabs(["1. Capacidades atuais", "2. Oportunidades", "3. Ganhos de complexidade","4. Externalidades"])
@@ -123,7 +127,7 @@ componentes_externalidades = peso_externalidades/(peso_pei+peso_pgi)*(peso_pei*d
 df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades + componente_ganhos + componentes_externalidades
 
 
-df_plot = df[['valor_indice','hs_product_code','hs_product_name_short_en','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
+df_plot = df[['valor_indice','hs_product_code','hs_product_name_short_en','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
 
 
 df_plot['hs_product_code'] = df_plot['hs_product_code'].apply(str)
@@ -157,12 +161,12 @@ df_plot['pei'] = df_plot['pei'].map('{:,.2f}'.format)
 
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
-df_plot = df_plot[['rank','valor_indice','hs_product_code','hs_product_name_short_en','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
+df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
 
 filtro_sh4 = st.text_input('Digite o SH4 desejado:')
-df_plot = df_plot[df_plot['hs_product_code'].str.startswith(filtro_sh4)]
+df_plot = df_plot[(df_plot['hs_product_code'].str.startswith(filtro_sh4)) | (df_plot['no_sh4'].str.lower().str.contains(filtro_sh4.lower()))]
 
-df_plot = df_plot.rename(columns={'dcr_bloco' : 'DCR AMS-BR','proporcao_importacao_origem_brasil' : 'Prop. de imp. com orig. Brasil (AMS)','hs_product_code' : ' Código HS 2007','hs_product_name_short_en': 'Descrição', 'export_value' : 'Exp (Milhões)','growth' : 'Crescimento (Milhões 2013-2021)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank','pgi' : 'PGI', 'pei' : 'PEI (Mil)'} )
+df_plot = df_plot.rename(columns={'dcr_bloco' : 'DCR AMS-BR','proporcao_importacao_origem_brasil' : 'Prop. de imp. com orig. Brasil (AMS)','hs_product_code' : ' Código HS 2007','no_sh4': 'Descrição', 'export_value' : 'Exp (Milhões)','growth' : 'Crescimento (Milhões 2013-2021)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank','pgi' : 'PGI', 'pei' : 'PEI (Mil)'} )
 
 
 st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
