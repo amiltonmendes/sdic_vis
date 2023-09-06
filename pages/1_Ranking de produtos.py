@@ -7,9 +7,12 @@ import pandas as pd
 import streamlit as st
 import pandas as pd
 import locale
+from streamlit_extras.switch_page_button import switch_page
 
 
 st.set_page_config(layout="wide")
+
+    
 
 @st.cache_data
 def load_data(rca):
@@ -21,8 +24,11 @@ def load_data(rca):
 
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
 
+bt_redirecionar = st.button('Analisar produtos')
+
 
 df = load_data(considerar_rca)
+
 
 
 
@@ -168,5 +174,9 @@ df_plot = df_plot[(df_plot['hs_product_code'].str.startswith(filtro_sh4)) | (df_
 
 df_plot = df_plot.rename(columns={'dcr_bloco' : 'DCR AMS-BR','proporcao_importacao_origem_brasil' : 'Prop. de imp. com orig. Brasil (AMS)','hs_product_code' : ' Código HS 2007','no_sh4': 'Descrição', 'export_value' : 'Exp (Milhões)','growth' : 'Crescimento (Milhões 2013-2021)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank','pgi' : 'PGI', 'pei' : 'PEI (Mil)'} )
 
-
 st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
+
+if bt_redirecionar:
+    st.session_state['df_plot'] = df_plot[[' Código HS 2007', 'Descrição']]
+    switch_page("Análise de produtos")
+
