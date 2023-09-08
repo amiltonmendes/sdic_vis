@@ -177,6 +177,6 @@ df_plot = df_plot.rename(columns={'dcr_bloco' : 'DCR AMS-BR','proporcao_importac
 st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
 
 if bt_redirecionar:
-    st.session_state['df_plot'] = df_plot[[' Código HS 2007', 'Descrição']]
+    st.session_state['df_plot'] = df_plot[['Rank',' Código HS 2007', 'Descrição']]
     switch_page("Análise de produtos")
 
