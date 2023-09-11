@@ -11,6 +11,7 @@ from urllib.request import urlopen
 import json
 
 
+##TODO indicador da américa do sul
 
 st.set_page_config(layout="wide")
 

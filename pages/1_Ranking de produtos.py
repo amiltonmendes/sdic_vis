@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import locale
 from streamlit_extras.switch_page_button import switch_page
+from st_aggrid import GridOptionsBuilder, AgGrid
 
 
 st.set_page_config(layout="wide")
@@ -115,7 +116,10 @@ with tab4:
 
 #Criar o indice de impacto AMS
 df['impacto_ams'] = 1 - df['proporcao_importacao_origem_brasil']
-df.loc[df['dcr_bloco']<=1,'impacto_ams'] = 0
+
+df['impacto_ams'] = df['dcr_bloco']*df['impacto_ams']
+
+#df.loc[df['dcr_bloco']<=1,'impacto_ams'] = 0
 
 
 componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
@@ -138,45 +142,51 @@ df_plot = df[['valor_indice','hs_product_code','hs_product_name_short_en','no_sh
 
 df_plot['hs_product_code'] = df_plot['hs_product_code'].apply(str)
 
-df_plot['rca'] = df_plot['rca'].map('{:.2f}'.format)
-df_plot['density'] = df_plot['density'].map('{:.2f}'.format)
-df_plot['rcd'] = df_plot['rcd'].map('{:.2f}'.format)
-df_plot['pci'] = df_plot['pci'].map('{:.2f}'.format)
-df_plot['cog'] = df_plot['cog'].map('{:.2f}'.format)
-df_plot['pgi'] = df_plot['pgi'].map('{:.2f}'.format)
-df_plot['dcr_bloco'] = df_plot['dcr_bloco'].map('{:.2f}'.format)
-df_plot['proporcao_importacao_origem_brasil'] = df_plot['proporcao_importacao_origem_brasil'].map('{:.2f}'.format)
-
-
-df_plot['export_value'] = df_plot['export_value']/1000000
-df_plot['export_value'] = df_plot['export_value'].map('${:,.2f}'.format)
-
-df_plot['growth'] = df_plot['growth']/1000000
-df_plot['growth'] = df_plot['growth'].map('${:,.2f}'.format)
-
-
-df_plot['import_value'] = df_plot['import_value']/1000000
-df_plot['import_value'] = df_plot['import_value'].map('${:,.2f}'.format)
-
-df_plot['import_value_total'] = df_plot['import_value_total']/1000000
-df_plot['import_value_total'] = df_plot['import_value_total'].map('${:,.2f}'.format)
-
-df_plot['pei'] = df_plot['pei']/1000
-df_plot['pei'] = df_plot['pei'].map('{:,.2f}'.format)
-
-
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
 
-filtro_sh4 = st.text_input('Digite o SH4 desejado:')
-df_plot = df_plot[(df_plot['hs_product_code'].str.startswith(filtro_sh4)) | (df_plot['no_sh4'].str.lower().str.contains(filtro_sh4.lower()))]
+#filtro_sh4 = st.text_input('Digite o SH4 desejado:')
+#df_plot = df_plot[(df_plot['hs_product_code'].str.startswith(filtro_sh4)) | (df_plot['no_sh4'].str.lower().str.contains(filtro_sh4.lower()))]
 
-df_plot = df_plot.rename(columns={'dcr_bloco' : 'DCR AMS-BR','proporcao_importacao_origem_brasil' : 'Prop. de imp. com orig. Brasil (AMS)','hs_product_code' : ' Código HS 2007','no_sh4': 'Descrição', 'export_value' : 'Exp (Milhões)','growth' : 'Crescimento (Milhões 2013-2021)', 'import_value' : 'Imp. (Milhões)','import_value_total' : 'Imp. Mundo (Milhões)', 'rca' : 'VCR', 'density' : 'Dens.', 'rcd' : 'DCR', 'pci' : 'ICP','cog' : 'Ganho de Op.','rank' : 'Rank','pgi' : 'PGI', 'pei' : 'PEI (Mil)'} )
 
-st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
+
+#st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
 
 if bt_redirecionar:
     st.session_state['df_plot'] = df_plot[['Rank',' Código HS 2007', 'Descrição']]
     switch_page("Análise de produtos")
 
+
+df_plot['pei'] = df_plot['pei']/1000
+df_plot['export_value'] = df_plot['export_value']/1000000
+df_plot['growth'] = df_plot['growth']/1000000
+df_plot['import_value'] = df_plot['import_value']/1000000
+df_plot['import_value_total'] = df_plot['import_value_total']/1000000
+
+
+gb = GridOptionsBuilder.from_dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='rank'))
+gb.configure_column("pei",header_name=("PEI (Mil)"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("dcr_bloco",header_name=("DCR AMS-BR"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("proporcao_importacao_origem_brasil",header_name=('Prop. de imp. com orig. Brasil (AMS)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("hs_product_code",header_name=('Código HS 2007'), type=["text"])
+gb.configure_column("no_sh4",header_name=('Descrição'), type=["text"])
+gb.configure_column("export_value",header_name=('Exp (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("growth",header_name=('Crescimento (Milhões 2013-2021)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("import_value",header_name=('Imp. (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("import_value_total",header_name=('Imp. Mundo (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("rca",header_name=('VCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("density",header_name=('Proximidade'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("rcd",header_name=('DCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("pci",header_name=('ICP'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("cog",header_name=('Ganho de Op.'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("rank",header_name=('Posição'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=0)
+gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+
+gridOptions = gb.build()
+
+AgGrid(
+    df_plot.drop('valor_indice',axis=1).sort_values(by='rank'),
+    gridOptions=gridOptions,
+    height=230,reload_data=True
+)

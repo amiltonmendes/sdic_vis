@@ -169,3 +169,36 @@ df_plot = df_plot.rename(columns={'dcr_bloco' : 'DCR AMS-BR','proporcao_importac
 
 
 st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
+
+
+
+
+
+
+"""
+df_plot['rca'] = df_plot['rca'].map('{:.2f}'.format)
+df_plot['density'] = df_plot['density'].map('{:.2f}'.format)
+df_plot['rcd'] = df_plot['rcd'].map('{:.2f}'.format)
+df_plot['pci'] = df_plot['pci'].map('{:.2f}'.format)
+df_plot['cog'] = df_plot['cog'].map('{:.2f}'.format)
+df_plot['pgi'] = df_plot['pgi'].map('{:.2f}'.format)
+df_plot['dcr_bloco'] = df_plot['dcr_bloco'].map('{:.2f}'.format)
+df_plot['proporcao_importacao_origem_brasil'] = df_plot['proporcao_importacao_origem_brasil'].map('{:.2f}'.format)
+
+
+df_plot['export_value'] = df_plot['export_value']/1000000
+df_plot['export_value'] = df_plot['export_value'].map('${:,.2f}'.format)
+
+df_plot['growth'] = df_plot['growth']/1000000
+df_plot['growth'] = df_plot['growth'].map('${:,.2f}'.format)
+
+
+df_plot['import_value'] = df_plot['import_value']/1000000
+df_plot['import_value'] = df_plot['import_value'].map('${:,.2f}'.format)
+
+df_plot['import_value_total'] = df_plot['import_value_total']/1000000
+df_plot['import_value_total'] = df_plot['import_value_total'].map('${:,.2f}'.format)
+
+df_plot['pei'] = df_plot['pei']/1000
+df_plot['pei'] = df_plot['pei'].map('{:,.2f}'.format)
+"""
