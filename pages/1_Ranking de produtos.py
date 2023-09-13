@@ -1,7 +1,4 @@
-"""
-# My first app
-Here's our first attempt at using data to create a table:
-"""
+##TODO trabalhar com dados de pei per capita ou ligado ao gpd
 
 import pandas as pd
 import streamlit as st
@@ -14,21 +11,61 @@ from st_aggrid import GridOptionsBuilder, AgGrid
 st.set_page_config(layout="wide")
 
     
+def normalize(df,coluna):
+    max_ = max(df[coluna])
+    min_ = min(df[coluna])
+    return (df[coluna]+min_)/max_
 
 @st.cache_data
-def load_data(rca):
+def load_data(rca,pei_percapita):
     locale._override_localeconv = {'thousands_sep': '.'}
-    retorno = pd.read_csv('./raw_indice_normalizado_port.csv')
+    retorno = pd.read_csv('./raw_data_ice_pt.csv',dtype={'hs_product_code': str})
+
+    #retorno['hs_product_code'] = retorno['hs_product_code'].apply(str)
+    #retorno['pei'] = retorno['pei']/1000
+
+    retorno['export_value'] = retorno['export_value']/1000000
+
+    retorno['import_value'] = retorno['import_value']/1000000
+    retorno['import_value_total'] = retorno['import_value_total']/1000000
+
+    retorno['impacto_ams'] = 1 - retorno['proporcao_importacao_origem_brasil']
+    retorno['impacto_ams'] = retorno['dcr_bloco']*retorno['impacto_ams']
+    retorno['impacto_ams'] = normalize(retorno,'impacto_ams')
+
+    ##pgi
+    retorno = retorno.merge(pd.read_csv('./raw_data_pgi.csv',dtype={'hs_product_code': str}),on='hs_product_code')
+    retorno['pgi_normalized_inverted'] = 1-retorno['pgi']
+
+    ##pei
+    if pei_percapita==False:
+        retorno= retorno.merge(pd.read_csv('./raw_data_pei.csv',dtype={'hs_product_code': str}),on='hs_product_code')
+        retorno['pei_normalized_inverted'] = 1-retorno['pei_standarized']
+    else:
+        retorno = retorno.merge(pd.read_csv('./raw_data_pei_percapita.csv',dtype={'hs_product_code': str}),on='hs_product_code')
+        retorno['pei_normalized_inverted'] = 1-retorno['pei_standarized']
+
+    #pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted
+    ##Crescimento
+    retorno = retorno.merge(pd.read_csv('./raw_data_import_total_2013.csv',dtype={'hs_product_code': str}),on='hs_product_code')
+    
+    retorno['growth'] = (retorno['import_value_total']-retorno['import_total_2013'])/retorno['import_total_2013']
+    retorno['growth'] = retorno['growth']*100
+
+
+
     if rca==False:
         retorno = retorno[retorno['rca']<1]
     return retorno
 
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
+considerar_pei_percapita = st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
 
-bt_redirecionar = st.button('Analisar produtos')
+
+#bt_redirecionar = st.button('Analisar produtos')
 
 
-df = load_data(considerar_rca)
+df = load_data(considerar_rca,considerar_pei_percapita)
 
 
 
@@ -112,21 +149,13 @@ with tab4:
 
 
 
-###Capacidades Atuais
-
-#Criar o indice de impacto AMS
-df['impacto_ams'] = 1 - df['proporcao_importacao_origem_brasil']
-
-df['impacto_ams'] = df['dcr_bloco']*df['impacto_ams']
-
-#df.loc[df['dcr_bloco']<=1,'impacto_ams'] = 0
 
 
 componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
     (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])
     
 componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
-                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] + peso_impacto_ams*df['impacto_ams'] ) 
+                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth'] + peso_impacto_ams*df['impacto_ams'] ) 
 
 componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_gt_mean'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
 
@@ -140,29 +169,16 @@ df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades 
 df_plot = df[['valor_indice','hs_product_code','hs_product_name_short_en','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
 
 
-df_plot['hs_product_code'] = df_plot['hs_product_code'].apply(str)
-
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
 
-#filtro_sh4 = st.text_input('Digite o SH4 desejado:')
-#df_plot = df_plot[(df_plot['hs_product_code'].str.startswith(filtro_sh4)) | (df_plot['no_sh4'].str.lower().str.contains(filtro_sh4.lower()))]
+
+#if bt_redirecionar:
+#    st.session_state['df_plot'] = df_plot[['Rank',' Código HS 2007', 'Descrição']]
+#    switch_page("Análise de produtos")
 
 
-
-#st.dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='Rank'), use_container_width=True,hide_index =True)
-
-if bt_redirecionar:
-    st.session_state['df_plot'] = df_plot[['Rank',' Código HS 2007', 'Descrição']]
-    switch_page("Análise de produtos")
-
-
-df_plot['pei'] = df_plot['pei']/1000
-df_plot['export_value'] = df_plot['export_value']/1000000
-df_plot['growth'] = df_plot['growth']/1000000
-df_plot['import_value'] = df_plot['import_value']/1000000
-df_plot['import_value_total'] = df_plot['import_value_total']/1000000
 
 
 gb = GridOptionsBuilder.from_dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='rank'))
