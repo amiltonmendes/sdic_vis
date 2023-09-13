@@ -27,7 +27,6 @@ def load_data(rca,pei_percapita):
     retorno['export_value'] = retorno['export_value']/1000000
 
     retorno['import_value'] = retorno['import_value']/1000000
-    retorno['import_value_total'] = retorno['import_value_total']/1000000
 
     retorno['impacto_ams'] = 1 - retorno['proporcao_importacao_origem_brasil']
     retorno['impacto_ams'] = retorno['dcr_bloco']*retorno['impacto_ams']
@@ -51,6 +50,9 @@ def load_data(rca,pei_percapita):
     
     retorno['growth'] = (retorno['import_value_total']-retorno['import_total_2013'])/retorno['import_total_2013']
     retorno['growth'] = retorno['growth']*100
+
+    retorno['import_value_total'] = retorno['import_value_total']/1000000
+
 
 
 
