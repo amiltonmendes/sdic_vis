@@ -14,7 +14,12 @@ st.set_page_config(layout="wide")
 def normalize(df,coluna):
     max_ = max(df[coluna])
     min_ = min(df[coluna])
-    return (df[coluna]+min_)/max_
+    if min_>0:
+        return (df[coluna]-min_)/(max_-min_)
+    elif min_<0:
+        return (df[coluna]+abs(min_))/(max_-min_)
+    else:
+        return (df[coluna])/(max_)
 
 @st.cache_data
 def load_data(rca,pei_percapita):
