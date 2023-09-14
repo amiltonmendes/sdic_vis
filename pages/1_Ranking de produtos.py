@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 import pandas as pd
 import locale
+import numpy as np
 from streamlit_extras.switch_page_button import switch_page
 from st_aggrid import GridOptionsBuilder, AgGrid
 
@@ -55,6 +56,8 @@ def load_data(rca,pei_percapita):
     
     retorno['growth'] = (retorno['import_value_total']-retorno['import_total_2013'])/retorno['import_total_2013']
     retorno['growth'] = retorno['growth']*100
+
+    retorno['growth_normalized'] = normalize(retorno,'growth')
 
     retorno['import_value_total'] = retorno['import_value_total']/1000000
 
@@ -162,7 +165,7 @@ componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+p
     (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])
     
 componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
-                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth'] + peso_impacto_ams*df['impacto_ams'] ) 
+                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] + peso_impacto_ams*df['impacto_ams'] ) 
 
 componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_gt_mean'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
 
@@ -173,12 +176,13 @@ componentes_externalidades = peso_externalidades/(peso_pei+peso_pgi)*(peso_pei*d
 df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades + componente_ganhos + componentes_externalidades
 
 
-df_plot = df[['valor_indice','hs_product_code','hs_product_name_short_en','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
+df_plot = df[['valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
 
 
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
-df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
+df_plot = df_plot.drop('valor_indice',axis=1)
+#df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
 
 
 #if bt_redirecionar:
@@ -188,7 +192,7 @@ df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco',
 
 
 
-gb = GridOptionsBuilder.from_dataframe(df_plot.drop('valor_indice',axis=1).sort_values(by='rank'))
+gb = GridOptionsBuilder.from_dataframe(df_plot.sort_values(by='rank'))
 gb.configure_column("pei",header_name=("PEI (Mil)"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("dcr_bloco",header_name=("DCR AMS-BR"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("proporcao_importacao_origem_brasil",header_name=('Prop. de imp. com orig. Brasil (AMS)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
@@ -209,7 +213,7 @@ gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberCol
 gridOptions = gb.build()
 
 AgGrid(
-    df_plot.drop('valor_indice',axis=1).sort_values(by='rank'),
+    df_plot.sort_values(by='rank'),
     gridOptions=gridOptions,
     height=230,reload_data=True
 )
