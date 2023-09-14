@@ -21,6 +21,16 @@ def normalize(df,coluna):
         return (df[coluna]+abs(min_))/(max_-min_)
     else:
         return (df[coluna])/(max_)
+def normalize_log(df,coluna):
+    max_ = max(df[coluna])
+    min_ = min(df[coluna])
+    if min_>0:
+        return np.log(df[coluna]-min_)
+    elif min_<0:
+        return np.log(df[coluna]+abs(min_))
+    else:
+        return np.log(df[coluna])
+
 
 @st.cache_data
 def load_data(rca,pei_percapita):
@@ -182,7 +192,7 @@ df_plot = df[['valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_i
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 df_plot = df_plot.drop('valor_indice',axis=1)
-#df_plot = df_plot[['rank','valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
+df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
 
 
 #if bt_redirecionar:
