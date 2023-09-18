@@ -79,7 +79,7 @@ def load_data(rca,pei_percapita):
     return retorno
 
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
-considerar_pei_percapita = st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
+considerar_pei_percapita = True #= st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
 
 
 #bt_redirecionar = st.button('Analisar produtos')
@@ -133,7 +133,7 @@ with tab2:
     peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.5 Oportunidades de integração com América do Sul</div>',unsafe_allow_html=True,help="Oportunidades de integração com América do Sul. Esse índice é calculado da seguinte forma: 1) para valores de DCR da América do Sul, exceto o Brasil, menores que 1, ele recebe o valor 0; 2) caso contrário, recebe o percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil.")
+    row[0].markdown('##### <div style="text-align: right;">2.5 Oportunidades de integração com América do Sul</div>',unsafe_allow_html=True,help="Oportunidades de integração com América do Sul. Esse índice é calculado a partir da multiplicação do percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil, pela desvantagem comparativa relevada do produto, calculado considerando-se o bloco América do Sul, exceto o Brasil, como um país ")
     peso_impacto_ams = row[1].number_input('Impacto AMS',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
 
@@ -191,8 +191,8 @@ df_plot = df[['valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_i
 
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
-df_plot = df_plot.drop('valor_indice',axis=1)
-df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei']]
+#df_plot = df_plot.drop('valor_indice',axis=1)
+df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
 
 
 #if bt_redirecionar:
@@ -219,6 +219,8 @@ gb.configure_column("pci",header_name=('ICP'), type=["numericColumn", "numberCol
 gb.configure_column("cog",header_name=('Ganho de Op.'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("rank",header_name=('Posição'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=0)
 gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("valor_indice",header_name=('Índice'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+
 
 gridOptions = gb.build()
 
