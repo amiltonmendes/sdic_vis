@@ -1,0 +1,68 @@
+cod_atividade	desc_atividade
+0191	Agricultura, inclusive o apoio à agricultura e a pós-colheita
+0192	Pecuária, inclusive o apoio à pecuária
+0280	Produção florestal; pesca e aquicultura
+0580	Extração de carvão mineral e de minerais não metálicos
+0680	Extração de petróleo e gás, inclusive as atividades de apoio
+0791	Extração de minério de ferro, inclusive beneficiamentos e a aglomeração
+0792	Extração de minerais metálicos não ferrosos, inclusive beneficiamentos
+1091	Abate e produtos de carne, inclusive os produtos do laticínio e da pesca
+1092	Fabricação e refino de açúcar
+1093	Outros produtos alimentares
+1100	Fabricação de bebidas
+1200	Fabricação de produtos do fumo
+1300	Fabricação de produtos têxteis
+1400	Confecção de artefatos do vestuário e acessórios
+1500	Fabricação de calçados e de artefatos de couro
+1600	Fabricação de produtos da madeira
+1700	Fabricação de celulose, papel e produtos de papel
+1800	Impressão e reprodução de gravações
+1991	Refino de petróleo e coquerias
+1992	Fabricação de biocombustíveis
+2091	Fabricação de químicos orgânicos e inorgânicos, resinas e elastômeros
+2092	Fabricação de defensivos, desinfestantes, tintas e químicos diversos
+2093	Fabricação de produtos de limpeza, cosméticos/perfumaria e higiene pessoal
+2100	Fabricação de produtos farmoquímicos e farmacêuticos
+2200	Fabricação de produtos de borracha e de material plástico
+2300	Fabricação de produtos de minerais não metálicos
+2491	Produção de ferro gusa/ferroligas, siderurgia e tubos de aço sem costura
+2492	Metalurgia de metais não ferosos e a fundição de metais
+2500	Fabricação de produtos de metal, exceto máquinas e equipamentos
+2600	Fabricação de equipamentos de informática, produtos eletrônicos e ópticos
+2700	Fabricação de máquinas e equipamentos elétricos
+2800	Fabricação de máquinas e equipamentos mecânicos
+2991	Fabricação de automóveis, caminhões e ônibus, exceto peças
+2992	Fabricação de peças e acessórios para veículos automotores
+3000	Fabricação de outros equipamentos de transporte, exceto veículos automotores
+3180	Fabricação de móveis e de produtos de indústrias diversas
+3300	Manutenção, reparação e instalação de máquinas e equipamentos
+3500	Energia elétrica, gás natural e outras utilidades
+3680	Água, esgoto e gestão de resíduos
+4180	Construção
+4580	Comércio por atacado e varejo
+4900	Transporte terrestre
+5000	Transporte aquaviário
+5100	Transporte aéreo
+5280	Armazenamento, atividades auxiliares dos transportes e correio
+5500	Alojamento
+5600	Alimentação
+5800	Edição e edição integrada à impressão
+5980	Atividades de televisão, rádio, cinema e  gravação/edição de som e imagem
+6100	Telecomunicações
+6280	Desenvolvimento de sistemas e outros serviços de informação
+6480	Intermediação financeira, seguros e previdência complementar
+6800	Atividades imobiliárias
+6980	Atividades jurídicas, contábeis, consultoria e sedes de empresas 
+7180	Serviços de arquitetura, engenharia, testes/análises técnicas e P & D
+7380	Outras atividades profissionais, científicas e técnicas
+7700	Aluguéis não imobiliários e gestão de ativos de propriedade intelectual
+7880	Outras atividades administrativas e serviços complementares
+8000	Atividades de vigilância, segurança e investigação
+8400	Administração pública, defesa e seguridade social
+8591	Educação pública
+8592	Educação privada
+8691	Saúde pública
+8692	Saúde privada
+9080	Atividades artísticas, criativas e de espetáculos
+9480	Organizações associativas e outros serviços pessoais
+9700	Serviços domésticos

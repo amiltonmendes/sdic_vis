@@ -87,7 +87,7 @@ considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
 considerar_pei_percapita = True #= st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
 
 
-#bt_redirecionar = st.button('Analisar produtos')
+bt_redirecionar = st.button('Analisar produtos')
 
 
 df = load_data(considerar_rca,considerar_pei_percapita)
@@ -202,9 +202,9 @@ df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
 
 
-#if bt_redirecionar:
-#    st.session_state['df_plot'] = df_plot[['Rank',' Código HS 2007', 'Descrição']]
-#    switch_page("Análise de produtos")
+if bt_redirecionar:
+    st.session_state['df_plot'] = df_plot[['rank','hs_product_code', 'no_sh4']]
+    switch_page("Análise de produtos")
 
 
 
