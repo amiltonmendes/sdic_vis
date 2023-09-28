@@ -115,7 +115,7 @@ with Matriz:
     ligacao,multiplicador = get_data_scn()
     multiplicador = multiplicador.merge(mapeamento_scn,on='cod_atividade')
 
-    st.markdown("O multiplicador simples de emprego desse setor é <b>{}</b>, ou seja, cada R$ 1 milhão de reais no aumento na demanda desse setor gera uma quantidade de empregos igual a <b>{}</b> emprego(s).".format(comma_num(multiplicador['multiplicador_emprego'].values[0],':.10f'),comma_num(multiplicador['multiplicador_emprego'].values[0]*1000000,':.3f')),unsafe_allow_html=True)
+    st.markdown("O multiplicador simples de emprego desse setor é <b>{}</b>, ou seja, cada R$ 1 real de aumento na demanda desse setor gera uma quantidade de empregos igual a <b>{}</b> emprego(s).".format(comma_num(multiplicador['multiplicador_emprego'].values[0],':.10f'),comma_num(multiplicador['multiplicador_emprego'].values[0],':.3f')),unsafe_allow_html=True)
 
     ligacao = ligacao.merge(mapeamento_scn,on='cod_atividade')
     if (ligacao['ligacao_frente'].values[0] > 1) & (ligacao['ligacao_tras'].values[0] > 1):

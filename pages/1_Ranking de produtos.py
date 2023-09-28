@@ -1,5 +1,3 @@
-##TODO trabalhar com dados de pei per capita ou ligado ao gpd
-
 import pandas as pd
 import streamlit as st
 import pandas as pd
@@ -207,6 +205,9 @@ if bt_redirecionar:
     switch_page("Análise de produtos")
 
 
+busca = st.text_input(label="Digite o código SH4 ou a descrição da posição NCM que você deseja")
+if busca != "":
+    df_plot = df_plot[(df_plot.hs_product_code.str.contains(busca)) | (df_plot.no_sh4.str.contains(busca))]
 
 
 gb = GridOptionsBuilder.from_dataframe(df_plot)
@@ -231,7 +232,6 @@ gb.configure_column("cog",header_name=('Ganho de Op.'), type=["numericColumn", "
 gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("valor_indice",header_name=('Índice'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 
-#gb.configure_pagination(paginationPageSize=25,enabled=True, paginationAutoPageSize=False)
 
 
 gridOptions = gb.build()
@@ -254,12 +254,17 @@ with bottom_menu[0]:
 
 pages = paginar_df(df_plot.sort_values(by='rank').reset_index(drop=True), batch_size)
 
-
-AgGrid(
-    pages[current_page - 1],
-    gridOptions=gridOptions
-    ,reload_data=True,fit_columns_on_grid_load=True
-)
-
+if len(df_plot)==0:
+    AgGrid(
+        df_plot,
+        gridOptions=gridOptions
+        ,reload_data=True,fit_columns_on_grid_load=True
+    )
+else:
+    AgGrid(
+        pages[current_page - 1],
+        gridOptions=gridOptions
+        ,reload_data=True,fit_columns_on_grid_load=True
+    )
 
 
