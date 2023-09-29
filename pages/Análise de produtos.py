@@ -6,6 +6,9 @@ Here's our first attempt at using data to create a table:
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
+from plotly.colors import n_colors
+
 import pandas as pd
 from urllib.request import urlopen
 import json
@@ -39,7 +42,16 @@ def get_data_mapeamento_sh4_scn():
 def get_data_scn():
     ligacao = pd.read_csv('./indice_ligacao.csv',dtype={'cod_atividade' : str})
     multiplicador_emprego = pd.read_csv('./vetor_gerador_emprego.csv',dtype={'cod_atividade' : str})
-    return ligacao,multiplicador_emprego
+    remuneracao_scn = pd.read_csv('./remuneracao_media_scn.csv')
+
+    remuneracao_scn = remuneracao_scn.stack().reset_index().drop('level_0',axis=1).rename(columns={'level_1' : 'cod_atividade', 0 : 'remuneracao_media'})
+    remuneracao_scn.cod_atividade=remuneracao_scn.cod_atividade.apply(str)
+    remuneracao_scn.cod_atividade = remuneracao_scn.cod_atividade.str.pad(4,'left','0')
+    desc_atividade = pd.read_csv('./atividades_contas_nacionais.tsv',sep='\t',dtype={'cod_atividade' : str})
+    remuneracao_scn = remuneracao_scn.merge(desc_atividade,on='cod_atividade')
+
+
+    return ligacao,multiplicador_emprego,remuneracao_scn
 
 
 
@@ -112,14 +124,61 @@ with Matriz:
         st.warning('Não foi possível mapear esse SH4 para uma atividade do sistema de contas nacionais. Favor entrar em contato com amilton.lobo@mdic.gov.br e indicar o código com problema.', icon="⚠️")
         st.stop()
     st.markdown("A posição de código <b>"+select[1:5]+"</b> foi mapeada para o setor do sistema de contas nacionais <b>"+mapeamento_scn['cod_atividade'].values[0]+" - "+mapeamento_scn['desc_atividade'].values[0]+"</b>",unsafe_allow_html=True)
-    ligacao,multiplicador = get_data_scn()
+    ligacao,multiplicador,remuneracao = get_data_scn()
     multiplicador = multiplicador.merge(mapeamento_scn,on='cod_atividade')
 
     st.markdown("O multiplicador simples de emprego desse setor é <b>{}</b>, ou seja, cada R$ 1.000.000 ( um milhão ) de aumento na demanda desse setor gera uma quantidade de empregos igual a <b>{}</b> emprego(s).".format(comma_num(multiplicador['multiplicador_emprego'].values[0],':.10f'),comma_num(multiplicador['multiplicador_emprego'].values[0],':.3f')),unsafe_allow_html=True)
 
-    ligacao = ligacao.merge(mapeamento_scn,on='cod_atividade')
-    if (ligacao['ligacao_frente'].values[0] > 1) & (ligacao['ligacao_tras'].values[0] > 1):
+    ligacao_ = ligacao.merge(mapeamento_scn,on='cod_atividade')
+    if (ligacao_['ligacao_frente'].values[0] > 1) & (ligacao_['ligacao_tras'].values[0] > 1):
         setor_chave = ' chave'
     else:
         setor_chave = ' não chave'
-    st.markdown("Além disso, considerando que esse setor possui o índice de ligação para frente igual a <b>{}</b>, e o índice de ligação para trás igual a <b>{}</b>, esse setor é considerado um <b>setor {}</b>.".format(comma_num(ligacao['ligacao_frente'].values[0],':.3f'),comma_num(ligacao['ligacao_tras'].values[0],':.3f'),setor_chave),unsafe_allow_html=True)
+    st.markdown("Além disso, considerando que esse setor possui o índice de ligação para frente igual a <b>{}</b>, e o índice de ligação para trás igual a <b>{}</b>, esse setor é considerado um <b>setor {}</b>.".format(comma_num(ligacao_['ligacao_frente'].values[0],':.3f'),comma_num(ligacao_['ligacao_tras'].values[0],':.3f'),setor_chave),unsafe_allow_html=True)
+
+    remuneracao = remuneracao[remuneracao['cod_atividade']!='total']
+    #fig = px.box(remuneracao, y="remuneracao_media", points="all",labels={'remuneracao_media' : 'Remuneração média (anual)'})
+    
+    remuneracao['color']='lightblue'
+    remuneracao.loc[remuneracao['cod_atividade'] == mapeamento_scn['cod_atividade'].values[0],'color']='red'
+    remuneracao['grafico'] = 'teste'
+    
+    remuneracao=remuneracao.sort_values(by='cod_atividade')
+
+    
+    fig = go.Figure()
+    fig.add_scatter(
+        x=remuneracao['cod_atividade'],
+        y=remuneracao['remuneracao_media'],
+        mode='markers',
+        marker={'color': remuneracao['color']},
+        hovertemplate =
+            '%{x}'+
+            ' %{text}'+
+            '<br>Remuneração média: R$ %{y:.2f}<br>',
+        text = remuneracao['desc_atividade']
+        )
+    fig.update_layout(template='plotly_dark',title="Remuneração média anual por setor do SCN",xaxis_title='Setor do SCN',yaxis_title='Remuneração média anual')
+    fig.update_layout(separators = ',.')
+
+
+    
+    st.plotly_chart(fig)
+
+    ligacao['color']='lightblue'
+    ligacao.loc[ligacao['cod_atividade'] == mapeamento_scn['cod_atividade'].values[0],'color']='red'
+    figure = go.Figure()
+    figure.add_scatter(
+        x=ligacao['ligacao_frente'],
+        y=ligacao['ligacao_tras'],
+        mode='markers',
+        marker={'color': ligacao['color']},
+        hovertemplate = '%{text}<br>'
+            'ligação para frente %{x}<br>'+
+            'ligação para trás %{y}',
+        text = remuneracao['desc_atividade']        
+        )
+    figure.update_layout(template='plotly_dark',title="Índice de ligação para frente e para trás dos setores do SCN",xaxis_title='Índice de ligação para frente',yaxis_title='Índice de ligação para trás')
+    figure.show()    
+    st.plotly_chart(figure)
+
