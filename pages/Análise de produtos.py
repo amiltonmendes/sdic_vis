@@ -39,6 +39,28 @@ def get_data_mapeamento_sh4_scn():
     return retorno
 
 @st.cache_data
+def get_data_cnae_scn_potec():
+    cnae = pd.read_csv('./cnae_tabela_completa.csv',dtype={'classe_sdv' : str},sep=';').rename(columns={'Classe': 'classe','Descrição da classe':'classe_desc'})[['classe','classe_desc','classe_sdv']]
+    mapeamento_cnae = pd.read_csv('mapeamento_scn_cnae_final.csv',dtype={'cnae_4d' : str,'Ativ_Divulg.' : str}).rename(columns={'Ativ_Divulg.' : 'cod_atividade','cnae_4d' : 'classe_sdv'})
+
+    potec = pd.read_csv('matrix_potec.csv').rename(columns={'cnae_2' : 'classe_sdv'})
+    potec['classe_sdv'] = potec['classe_sdv'].astype(int)
+    potec['classe_sdv'] = potec['classe_sdv'].apply(str)
+    potec['classe_sdv'] = potec['classe_sdv'].str.pad(5,'left','0')
+    potec['classe_sdv'] = potec['classe_sdv'].str[0:4]
+    potec = potec[['ano','classe_sdv','Engenheiros','Pesquisadores','Profissionais Científicos','Total Técnicos','Total Contratados']]
+    potec['ano'] = potec['ano'].astype(int)
+
+    potec = potec.merge(mapeamento_cnae,on='classe_sdv')
+
+    potec = potec.groupby(['ano','cod_atividade'])[['Engenheiros','Pesquisadores','Profissionais Científicos','Total Técnicos','Total Contratados']].sum().reset_index()
+    potec['potec'] = potec['Total Técnicos']/potec['Total Contratados']
+    cnae = cnae.merge(mapeamento_cnae,on='classe_sdv')
+
+    return potec,cnae
+
+
+@st.cache_data
 def get_data_scn():
     ligacao = pd.read_csv('./indice_ligacao.csv',dtype={'cod_atividade' : str})
     multiplicador_emprego = pd.read_csv('./vetor_gerador_emprego.csv',dtype={'cod_atividade' : str})
@@ -48,8 +70,10 @@ def get_data_scn():
     remuneracao_scn.cod_atividade=remuneracao_scn.cod_atividade.apply(str)
     remuneracao_scn.cod_atividade = remuneracao_scn.cod_atividade.str.pad(4,'left','0')
     desc_atividade = pd.read_csv('./atividades_contas_nacionais.tsv',sep='\t',dtype={'cod_atividade' : str})
-    remuneracao_scn = remuneracao_scn.merge(desc_atividade,on='cod_atividade')
+    remuneracao_scn = remuneracao_scn.merge(desc_atividade,on='cod_atividade',how='left')
 
+
+    ligacao = ligacao.merge(desc_atividade,on='cod_atividade')
 
     return ligacao,multiplicador_emprego,remuneracao_scn
 
@@ -136,49 +160,191 @@ with Matriz:
         setor_chave = ' não chave'
     st.markdown("Além disso, considerando que esse setor possui o índice de ligação para frente igual a <b>{}</b>, e o índice de ligação para trás igual a <b>{}</b>, esse setor é considerado um <b>setor {}</b>.".format(comma_num(ligacao_['ligacao_frente'].values[0],':.3f'),comma_num(ligacao_['ligacao_tras'].values[0],':.3f'),setor_chave),unsafe_allow_html=True)
 
+    media_total = remuneracao[remuneracao['cod_atividade']=='total']
     remuneracao = remuneracao[remuneracao['cod_atividade']!='total']
-    #fig = px.box(remuneracao, y="remuneracao_media", points="all",labels={'remuneracao_media' : 'Remuneração média (anual)'})
-    
+
+    remuneracao=remuneracao.sort_values(by='cod_atividade')
+
+
     remuneracao['color']='lightblue'
     remuneracao.loc[remuneracao['cod_atividade'] == mapeamento_scn['cod_atividade'].values[0],'color']='red'
-    remuneracao['grafico'] = 'teste'
     
-    remuneracao=remuneracao.sort_values(by='cod_atividade')
+    
 
     
     fig = go.Figure()
     fig.add_scatter(
-        x=remuneracao['cod_atividade'],
-        y=remuneracao['remuneracao_media'],
+        x=remuneracao.sort_values(by='cod_atividade')['cod_atividade'],
+        y=remuneracao.sort_values(by='cod_atividade')['remuneracao_media'],
         mode='markers',
-        marker={'color': remuneracao['color']},
+        marker={'color': 'lightblue'},
         hovertemplate =
             '%{x}'+
             ' %{text}'+
             '<br>Remuneração média: R$ %{y:.2f}<br>',
-        text = remuneracao['desc_atividade']
+        showlegend=False,
+        text = remuneracao.sort_values(by='cod_atividade')['desc_atividade'],
         )
+    fig.add_scatter(
+        x=remuneracao[remuneracao['color']=='red'].sort_values(by='cod_atividade')['cod_atividade'],
+        y=remuneracao[remuneracao['color']=='red'].sort_values(by='cod_atividade')['remuneracao_media'],
+        mode='markers',
+        marker={'color': 'red','symbol' : 'x'},
+        name='Setor analisado',
+        hovertemplate =
+            '%{x}'+
+            ' %{text}'+
+            '<br>Remuneração média: R$ %{y:.2f}<br>',
+        text = remuneracao[remuneracao['color']=='red'].sort_values(by='cod_atividade')['desc_atividade'],
+        )
+
+    fig.add_scatter(mode='lines',
+                    x=[min(remuneracao['cod_atividade']),max(remuneracao['cod_atividade'])],
+                    y=[media_total['remuneracao_media'].values[0],media_total['remuneracao_media'].values[0]],
+                    line_width=0.8, line_color="red",
+                    name='Remuneração média',showlegend=True,
+                            hovertemplate = 'Remuneração média: R$ %{y:.2f}',
+                    hoverinfo='skip'
+)
+
+    fig.update_layout(
+        xaxis = dict(
+            nticks=5,
+        )
+    )   
     fig.update_layout(template='plotly_dark',title="Remuneração média anual por setor do SCN",xaxis_title='Setor do SCN',yaxis_title='Remuneração média anual')
     fig.update_layout(separators = ',.')
 
 
-    
-    st.plotly_chart(fig)
+    row = st.columns([1,1])
+
+    row[0].plotly_chart(fig,use_container_width=True)
 
     ligacao['color']='lightblue'
     ligacao.loc[ligacao['cod_atividade'] == mapeamento_scn['cod_atividade'].values[0],'color']='red'
     figure = go.Figure()
+    
+    figure.add_shape(type="rect",
+        x0=0.25, y0=0.30, x1=1, y1=1,
+        line=dict(
+            color="RoyalBlue",
+            width=0,
+        ),
+        fillcolor="gray",
+        opacity=0.2,
+    )
+
+    figure.add_trace(go.Scatter(
+        x=[0.62,0.62,2.5,2.5],
+        y=[0.40,1.6,0.40,1.6],
+        text=["Baixo<br>encadeamento",'Alto encadeamento<br> para trás','Alto encadeamento para frente','Alto encadeamento para trás e para frente'],
+        mode="text",
+        hoverinfo='skip',
+        showlegend=False
+    ))
+
+    figure.add_shape(type="rect",
+        x0=0.25, y0=1, x1=1.0, y1=1.7,
+        line=dict(
+            color="RoyalBlue",
+            width=0,
+        ),
+        fillcolor="lightblue",
+        opacity=0.3,
+    )
+
+    figure.add_shape(type="rect",
+        x0=1, y0=0.3, x1=4.0, y1=1,
+        line=dict(
+            color="RoyalBlue",
+            width=0,
+        ),
+        fillcolor="lightblue",
+        opacity=0.3,
+    )
+    figure.add_shape(type="rect",
+        x0=1, y0=1, x1=4.0, y1=1.7,
+        line=dict(
+            color="RoyalBlue",
+            width=0,
+        ),
+        fillcolor="lightgreen",
+        opacity=0.3,
+    )
+
+
     figure.add_scatter(
-        x=ligacao['ligacao_frente'],
-        y=ligacao['ligacao_tras'],
+        x=ligacao[ligacao['color']=='lightblue']['ligacao_frente'],
+        y=ligacao[ligacao['color']=='lightblue']['ligacao_tras'],
         mode='markers',
-        marker={'color': ligacao['color']},
+        name='',
+        marker={'color': 'lightblue'},
         hovertemplate = '%{text}<br>'
             'ligação para frente %{x}<br>'+
             'ligação para trás %{y}',
-        text = remuneracao['desc_atividade']        
+        text = ligacao['desc_atividade'],
+        showlegend=False       
         )
+    figure.add_scatter(
+        x=ligacao[ligacao['color']=='red']['ligacao_frente'],
+        y=ligacao[ligacao['color']=='red']['ligacao_tras'],
+        mode='markers',
+        marker={'color': 'red','symbol' : 'x'},
+        name='Setor analisado',
+        hovertemplate = '%{text}<br>'
+            'ligação para frente %{x}<br>'+
+            'ligação para trás %{y}',
+        text = ligacao['desc_atividade']        
+        )
+    figure.update_layout(legend={'title_text':''})
+
     figure.update_layout(template='plotly_dark',title="Índice de ligação para frente e para trás dos setores do SCN",xaxis_title='Índice de ligação para frente',yaxis_title='Índice de ligação para trás')
-    figure.show()    
-    st.plotly_chart(figure)
+    #figure = figure.add_trace(go.Scatter(x=[0,1,1,0], y=[0,0,1,1], fill="toself",line_width=0))
+    
+
+    row[1].plotly_chart(figure,use_container_width=True)
+
+
+
+    row = st.columns([1,1])
+    potec,cnae = get_data_cnae_scn_potec()
+    potec = potec[potec['cod_atividade'] == mapeamento_scn['cod_atividade'].values[0]]
+    cnae = cnae[cnae['cod_atividade'] == mapeamento_scn['cod_atividade'].values[0]]
+    
+    ticktext = [f"{t:.2f}" for t in  potec['potec']]
+
+    fig = go.Figure()
+    
+    fig.add_trace(go.Scatter(x=potec["ano"], y=potec["potec"], text=ticktext,
+            hovertemplate ='Ano: %{x}<br>'+
+            'Potec: %{y:.3f}',
+            name=''))
+
+
+    fig.update_yaxes(tickformat=".2s")  
+    fig.update_layout(template='plotly_dark',title="Índice Potec por ano",xaxis_title='Ano',yaxis_title='Pessoal ocupado técnico')
+
+
+    row[0].plotly_chart(fig,use_container_width=True)
+
+    row[1].markdown('<b>Códigos Cnae mapeados para conta nacional '+mapeamento_scn['cod_atividade'].values[0],unsafe_allow_html=True)
+    row[1].data_editor(cnae[['classe','classe_desc']],
+            column_config={
+                    "classe": st.column_config.TextColumn(
+                    "Classe Cnae 2.0",
+                    help="Classe Cnae 2.0",
+                    default="st.",
+                    max_chars=50,
+                    disabled=True,
+                ),
+                    "classe_desc": st.column_config.TextColumn(
+                    "Descrição da classe",
+                    help="Descrição da classe Cnae 2.0",
+                    default="st.",
+                    max_chars=50,
+                    disabled=True,
+                )
+
+            },
+    hide_index=True,   )
 
