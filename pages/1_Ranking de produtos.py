@@ -31,9 +31,9 @@ def normalize_log(df,coluna):
 
 
 @st.cache_data
-def load_data(rca,pei_percapita):
+def load_data(rca,pei_percapita,considerar_pci_eci):
     locale._override_localeconv = {'thousands_sep': '.'}
-    retorno = pd.read_csv('./raw_data_ice_pt.csv',dtype={'hs_product_code': str})
+    retorno = pd.read_csv('./raw_data_ice_pt_v2.csv',dtype={'hs_product_code': str})
 
     #retorno['hs_product_code'] = retorno['hs_product_code'].apply(str)
     #retorno['pei'] = retorno['pei']/1000
@@ -57,6 +57,9 @@ def load_data(rca,pei_percapita):
     else:
         retorno = retorno.merge(pd.read_csv('./raw_data_pei_percapita.csv',dtype={'hs_product_code': str}),on='hs_product_code')
         retorno['pei_normalized_inverted'] = 1-retorno['pei_standarized']
+
+    if considerar_pci_eci:
+        retorno = retorno[retorno['pci'] > retorno['eci']]
 
     #pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted
     ##Crescimento
@@ -84,11 +87,14 @@ def paginar_df(input_df,linhas):
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
 considerar_pei_percapita = True #= st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
 
+considerar_pci_eci = st.checkbox('Considerar valores de PCI acima do índice brasileiro ?')
+
+
 
 bt_redirecionar = st.button('Analisar produtos')
 
 
-df = load_data(considerar_rca,considerar_pei_percapita)
+df = load_data(considerar_rca,considerar_pei_percapita,considerar_pci_eci)
 
 
 
@@ -171,11 +177,8 @@ with tab4:
     peso_pei = row[1].number_input('PEI',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
 
 
-
-
-
 componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
-    (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])
+    (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['distancia_normalized'])
     
 componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
                    + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] + peso_impacto_ams*df['impacto_ams'] ) 
@@ -190,14 +193,14 @@ df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades 
 
 
 #df_plot = df[['valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
-df_plot = df[['valor_indice','hs_product_code','no_sh4','impacto_ams' ,'export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
+df_plot = df[['valor_indice','hs_product_code','no_sh4','impacto_ams' ,'export_value','rca','growth','distancia','import_value','import_value_total','dcr','pci','cog','pgi','pei']]
 
 
 
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 #df_plot = df_plot.drop('valor_indice',axis=1)
 #df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
-df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
+df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','distancia','import_value','import_value_total','growth','dcr','pci','cog','pgi','pei','valor_indice']]
 
 
 if bt_redirecionar:
@@ -225,8 +228,8 @@ gb.configure_column("growth",header_name=('Crescimento (Milhões 2013-2021)'), t
 gb.configure_column("import_value",header_name=('Imp. (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("import_value_total",header_name=('Imp. Mundo (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("rca",header_name=('VCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("density",header_name=('Proximidade'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("rcd",header_name=('DCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("distancia",header_name=('Proximidade'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+gb.configure_column("dcr",header_name=('DCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("pci",header_name=('ICP'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("cog",header_name=('Ganho de Op.'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
 gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
