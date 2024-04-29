@@ -61,8 +61,12 @@ def get_data_cnae_scn_potec():
 
 
 @st.cache_data
-def get_data_scn():
-    ligacao = pd.read_csv('./indice_ligacao.csv',dtype={'cod_atividade' : str})
+def get_data_scn(multiplicador_2015):
+    if multiplicador_2015:
+        ligacao = pd.read_csv('./indice_ligacao.csv',dtype={'cod_atividade' : str})
+    else:
+        ligacao = pd.read_csv('./indice_ligacao_2019.csv',dtype={'cod_atividade' : str})
+
     multiplicador_emprego = pd.read_csv('./vetor_gerador_emprego.csv',dtype={'cod_atividade' : str})
     remuneracao_scn = pd.read_csv('./remuneracao_media_scn.csv')
 
@@ -143,12 +147,13 @@ with Origens:
     st.plotly_chart(fig,use_container_width=True)
 
 with Matriz:
+    multiplicador_2015 = st.checkbox('Utilizar os multiplicadores de 2015? ( Alternativamente serão utilizados os multiplicadores de 2019)')
     mapeamento_scn = get_data_mapeamento_sh4_scn().query('sh4=="'+select[1:5]+'"')
     if mapeamento_scn.empty:
         st.warning('Não foi possível mapear esse SH4 para uma atividade do sistema de contas nacionais. Favor entrar em contato com amilton.lobo@mdic.gov.br e indicar o código com problema.', icon="⚠️")
         st.stop()
     st.markdown("A posição de código <b>"+select[1:5]+"</b> foi mapeada para o setor do sistema de contas nacionais <b>"+mapeamento_scn['cod_atividade'].values[0]+" - "+mapeamento_scn['desc_atividade'].values[0]+"</b>",unsafe_allow_html=True)
-    ligacao,multiplicador,remuneracao = get_data_scn()
+    ligacao,multiplicador,remuneracao = get_data_scn(multiplicador_2015)
     multiplicador = multiplicador.merge(mapeamento_scn,on='cod_atividade')
 
     st.markdown("O multiplicador simples de emprego desse setor é <b>{}</b>, ou seja, cada R$ 1.000.000 ( um milhão ) de aumento na demanda desse setor gera uma quantidade de empregos igual a <b>{}</b> emprego(s).".format(comma_num(multiplicador['multiplicador_emprego'].values[0],':.10f'),comma_num(multiplicador['multiplicador_emprego'].values[0],':.3f')),unsafe_allow_html=True)
