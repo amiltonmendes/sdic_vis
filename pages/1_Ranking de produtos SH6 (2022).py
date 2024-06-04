@@ -2,6 +2,8 @@ import pandas as pd
 import streamlit as st
 import pandas as pd
 import locale
+import io
+
 import numpy as np
 from streamlit_extras.switch_page_button import switch_page
 from st_aggrid import GridOptionsBuilder, AgGrid
@@ -216,12 +218,12 @@ if busca != "":
     df_plot = df_plot[(df_plot.hs_product_code.str.contains(busca)) | (df_plot.no_sh4.str.contains(busca))]
 
 
-top_menu = st.columns(3)
+top_menu = st.columns(4)
 with top_menu[0]:
     sort = st.radio("Ordenar dados", options=["Sim", "Não"], horizontal=1, index=1)
 if sort == "Sim":
     with top_menu[1]:
-        sort_field = st.selectbox("Ordenar por", options=['Posição no índice','Importações','Complexidade',''])
+        sort_field = st.selectbox("Ordenar por", options=['Posição no índice','Importações','Complexidade','SH6'])
     with top_menu[2]:
         sort_direction = st.radio(
             "Ordem", options=["⬆️", "⬇️"], horizontal=True
@@ -233,7 +235,27 @@ if sort == "Sim":
         coluna='import_value'
     elif sort_field=='Complexidade':
         coluna='pci'
+    elif sort_field=='SH6':
+        coluna='hs_product_code'
+
     df_plot = df_plot.sort_values(by=[coluna], ascending=sort_direction == "⬆️",ignore_index=True)
+with top_menu[3]:
+    buffer = io.BytesIO()
+
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df_plot\
+        .rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS6', 'no_sh4' : 'Descrição SH6',
+                         'impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
+                            'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})\
+                                .to_excel(writer, sheet_name='Planilha Complexidade', index=False)
+        writer.close()
+        download2 = st.download_button(
+            label="Download arquivo Excel",
+            data=buffer,
+            file_name='complexidade_sdic.xlsx',
+            mime='application/ms-excel'
+        )
 
 
 pagination = st.container()
