@@ -49,11 +49,13 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 
     ##pgi
     retorno = retorno.merge(pd.read_csv('./raw_data_pgish6_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
-    retorno['pgi_normalized_inverted'] = 1-retorno['pgi']
+    retorno['pgi_normalized_inverted'] = -retorno['pgi_standirized_less_one']
 
     ##pei
     retorno = retorno.merge(pd.read_csv('./raw_data_pei_percapita_sh6_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
-    retorno['pei_normalized_inverted'] = 1-retorno['pei_standarized']
+    retorno['pei_normalized_inverted'] = (1-retorno['pei_standarized'])
+    
+
 
     if considerar_pci_eci:
         retorno = retorno[retorno['pci'] > retorno['eci']]
@@ -75,8 +77,13 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 
 @st.cache_data
 def paginar_df(input_df,linhas):
-    df = [input_df.loc[i : i - 1 + linhas, :] for i in range(0, len(input_df), linhas)]
+    df = input_df.sort_values(by=['rank']).reset_index(drop=True).copy()
+    df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS6', 'no_sh4' : 'Descrição SH6','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
+                            'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
+    df = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
     return df
+
 
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
 considerar_pei_percapita = True #= st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
@@ -99,7 +106,7 @@ with tab1:
 
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">1. <b>Capacidades atuais</b></div>',unsafe_allow_html=True,help='Peso dado ao grupo das variáveis abaixo no cálculo do ranking')
-    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.0,max_value=1.0,value=0.3,label_visibility='collapsed',help='teste')
+    peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed',help='teste')
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">1.1 Valor exportado</div>',unsafe_allow_html=True, help="Peso do valor das exportações brasileiras do produto")
     peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
@@ -116,7 +123,7 @@ with tab1:
 with tab2:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">2. Oportunidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
-    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">2.1 Valor importado</div>',unsafe_allow_html=True,help="Peso das importações brasileiras do produto")
@@ -144,7 +151,7 @@ with tab2:
 with tab3:
     row = st.columns([2,1,4])
     row[0].markdown('#### <div style="text-align: right;">3. Ganhos de complexidade</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
-    peso_ganhos=row[1].number_input('Ganhos',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
+    peso_ganhos=row[1].number_input('Ganhos',min_value=0.0,max_value=1.0,value=0.4,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">3.1 Índice de Complexidade do Produto</div>',unsafe_allow_html=True, help="Peso do índice de complexidade do produto (ICP). Mede a diversidade e a sofisticação da expertise necessária para fabricar um produto. O ICP é calculado a partir de quantos outros países podem fabricar o produto, assim como a complexidade econômica desses países.")
@@ -181,7 +188,8 @@ componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_g
 componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_normalized'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
 
 
-componentes_externalidades = peso_externalidades/(peso_pei+peso_pgi)*(peso_pei*df['pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted'] )
+componentes_externalidades = (peso_externalidades/(peso_pei+peso_pgi))*(peso_pei*df['pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted'] )
+
 
 
 df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades + componente_ganhos + componentes_externalidades
@@ -207,33 +215,7 @@ busca = st.text_input(label="Digite o código SH6 ou a descrição da posição 
 if busca != "":
     df_plot = df_plot[(df_plot.hs_product_code.str.contains(busca)) | (df_plot.no_sh4.str.contains(busca))]
 
-
-gb = GridOptionsBuilder.from_dataframe(df_plot)
-gb.configure_column("rank",header_name=('Posição'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=0)
-gb.configure_column("hs_product_code",header_name=('Código HS 2007'), type=["text"])
-
-gb.configure_column("pei",header_name=("PEI (Mil)"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-#gb.configure_column("dcr_bloco",header_name=("DCR AMS-BR"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-#gb.configure_column("proporcao_importacao_origem_brasil",header_name=('Prop. de imp. com orig. Brasil (AMS)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("impacto_ams",header_name=('Integração com a Am. do Sul'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-
-gb.configure_column("no_sh4",header_name=('Descrição'), type=["text"])
-gb.configure_column("export_value",header_name=('Exp (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-#gb.configure_column("growth",header_name=('Crescimento (Milhões 2013-2021)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("import_value",header_name=('Imp. (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("import_value_total",header_name=('Imp. Mundo (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("rca",header_name=('VCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("distancia",header_name=('Proximidade'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("dcr",header_name=('DCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("pci",header_name=('ICP'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("cog",header_name=('Ganho de Op.'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("valor_indice",header_name=('Índice'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-
-
-
-gridOptions = gb.build()
-
+pagination = st.container()
 
 bottom_menu = st.columns((4, 1, 1))
 with bottom_menu[2]:
@@ -242,27 +224,14 @@ with bottom_menu[1]:
     total_pages = (
         int(len(df_plot) / batch_size) if int(len(df_plot) / batch_size) > 0 else 1
     )
-    if len(df_plot) % batch_size >=1:
-        total_pages+=1
     current_page = st.number_input(
         "Página", min_value=1, max_value=total_pages, step=1
     )
 with bottom_menu[0]:
-    st.markdown(f"Página **{current_page}** of **{total_pages}** ")
+    st.markdown(f"Página **{current_page}** de **{total_pages}** ")
 
-pages = paginar_df(df_plot.sort_values(by='rank').reset_index(drop=True), batch_size)
 
-if len(df_plot)==0:
-    AgGrid(
-        df_plot,
-        gridOptions=gridOptions
-        ,reload_data=True,fit_columns_on_grid_load=True
-    )
-else:
-    AgGrid(
-        pages[current_page - 1],
-        gridOptions=gridOptions
-        ,reload_data=True,fit_columns_on_grid_load=True
-    )
+pages = paginar_df(df_plot, batch_size)
+pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
 
 
