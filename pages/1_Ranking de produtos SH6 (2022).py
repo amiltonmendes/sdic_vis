@@ -77,7 +77,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 
 @st.cache_data
 def paginar_df(input_df,linhas):
-    df = input_df.sort_values(by=['rank']).reset_index(drop=True).copy()
+    df = input_df.copy()
     df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS6', 'no_sh4' : 'Descrição SH6','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
                             'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
@@ -214,6 +214,27 @@ if bt_redirecionar:
 busca = st.text_input(label="Digite o código SH6 ou a descrição da posição NCM que você deseja")
 if busca != "":
     df_plot = df_plot[(df_plot.hs_product_code.str.contains(busca)) | (df_plot.no_sh4.str.contains(busca))]
+
+
+top_menu = st.columns(3)
+with top_menu[0]:
+    sort = st.radio("Ordenar dados", options=["Sim", "Não"], horizontal=1, index=1)
+if sort == "Sim":
+    with top_menu[1]:
+        sort_field = st.selectbox("Ordenar por", options=['Posição no índice','Importações','Complexidade',''])
+    with top_menu[2]:
+        sort_direction = st.radio(
+            "Ordem", options=["⬆️", "⬇️"], horizontal=True
+        )
+    coluna = ""
+    if sort_field == 'Posição no índice':
+        coluna='rank'       
+    elif sort_field=="Importações":
+        coluna='import_value'
+    elif sort_field=='Complexidade':
+        coluna='pci'
+    df_plot = df_plot.sort_values(by=[coluna], ascending=sort_direction == "⬆️",ignore_index=True)
+
 
 pagination = st.container()
 
