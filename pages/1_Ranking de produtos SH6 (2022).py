@@ -50,6 +50,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
     retorno['impacto_ams'] = normalize(retorno,'impacto_ams')
 
     ##pgi
+
     retorno = retorno.merge(pd.read_csv('./raw_data_pgish6_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
     retorno['pgi_normalized_inverted'] = -retorno['pgi_standirized_less_one']
 
@@ -79,7 +80,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 
 @st.cache_data
 def paginar_df(input_df,linhas):
-    df = input_df.copy()
+    df = input_df.copy().drop_duplicates()
     df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS6', 'no_sh4' : 'Descrição SH6','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
                             'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
@@ -201,7 +202,7 @@ df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades 
 df_plot = df[['valor_indice','hs_product_code','no_sh4','impacto_ams' ,'export_value','rca','distancia','import_value','import_value_total','dcr','pci','cog','pgi','pei']]
 
 
-
+df_plot = df_plot.drop_duplicates()
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 #df_plot = df_plot.drop('valor_indice',axis=1)
 #df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
