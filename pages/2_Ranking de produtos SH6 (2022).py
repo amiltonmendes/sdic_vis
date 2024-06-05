@@ -84,8 +84,12 @@ def paginar_df(input_df,linhas):
     df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS6', 'no_sh4' : 'Descrição SH6','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
                             'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
-    df = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
-    return df
+    try:
+        df_ret = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
+        return df_ret
+    except IndexError:
+        return df 
+    
 
 
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
@@ -275,7 +279,12 @@ with bottom_menu[0]:
     st.markdown(f"Página **{current_page}** de **{total_pages}** ")
 
 
+
 pages = paginar_df(df_plot, batch_size)
-pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
+try:
+    pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
+except IndexError:
+    pagination.dataframe(data=pages, use_container_width=True)
+
 
 
