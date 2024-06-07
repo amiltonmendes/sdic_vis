@@ -5,7 +5,7 @@ import locale
 import numpy as np
 from streamlit_extras.switch_page_button import switch_page
 from st_aggrid import GridOptionsBuilder, AgGrid
-
+import io
 
 st.set_page_config(layout="wide")
 
@@ -81,8 +81,15 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 
 @st.cache_data
 def paginar_df(input_df,linhas):
-    df = [input_df.loc[i : i - 1 + linhas, :] for i in range(0, len(input_df), linhas)]
-    return df
+    df = input_df.copy().drop_duplicates()
+    df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
+                            'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
+    try:
+        df_ret = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
+        return df_ret
+    except IndexError:
+        return df 
 
 considerar_rca = st.checkbox('Considerar valores de RCA acima de 1?')
 considerar_pei_percapita = True #= st.checkbox('Considerar emissões per capita no lugar de emissões totais ?')
@@ -212,34 +219,50 @@ if bt_redirecionar:
 busca = st.text_input(label="Digite o código SH4 ou a descrição da posição NCM que você deseja")
 if busca != "":
     df_plot = df_plot[(df_plot.hs_product_code.str.contains(busca)) | (df_plot.no_sh4.str.contains(busca))]
+    df_plot = df_plot.reset_index(drop=True)
 
 
-gb = GridOptionsBuilder.from_dataframe(df_plot)
-gb.configure_column("rank",header_name=('Posição'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=0)
-gb.configure_column("hs_product_code",header_name=('Código HS 2007'), type=["text"])
+top_menu = st.columns(4)
+with top_menu[0]:
+    sort = st.radio("Ordenar dados", options=["Sim", "Não"], horizontal=1, index=1)
+if sort == "Sim":
+    with top_menu[1]:
+        sort_field = st.selectbox("Ordenar por", options=['Posição no índice','Importações','Complexidade','SH4'])
+    with top_menu[2]:
+        sort_direction = st.radio(
+            "Ordem", options=["⬆️", "⬇️"], horizontal=True
+        )
+    coluna = ""
+    if sort_field == 'Posição no índice':
+        coluna='rank'       
+    elif sort_field=="Importações":
+        coluna='import_value'
+    elif sort_field=='Complexidade':
+        coluna='pci'
+    elif sort_field=='SH4':
+        coluna='hs_product_code'
 
-gb.configure_column("pei",header_name=("PEI (Mil)"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-#gb.configure_column("dcr_bloco",header_name=("DCR AMS-BR"), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-#gb.configure_column("proporcao_importacao_origem_brasil",header_name=('Prop. de imp. com orig. Brasil (AMS)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("impacto_ams",header_name=('Integração com a Am. do Sul'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+    df_plot = df_plot.sort_values(by=[coluna], ascending=sort_direction == "⬆️",ignore_index=True)
+with top_menu[3]:
+    buffer = io.BytesIO()
 
-gb.configure_column("no_sh4",header_name=('Descrição'), type=["text"])
-gb.configure_column("export_value",header_name=('Exp (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("growth",header_name=('Crescimento (Milhões 2013-2021)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("import_value",header_name=('Imp. (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("import_value_total",header_name=('Imp. Mundo (Milhões)'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("rca",header_name=('VCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("distancia",header_name=('Proximidade'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("dcr",header_name=('DCR'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("pci",header_name=('ICP'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("cog",header_name=('Ganho de Op.'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("pgi",header_name=('PGI'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
-gb.configure_column("valor_indice",header_name=('Índice'), type=["numericColumn", "numberColumnFilter","customNumericFormat"],precision=2)
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df_plot\
+        .rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4',
+                         'impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
+                            'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})\
+                                .to_excel(writer, sheet_name='Planilha Complexidade', index=False)
+        writer.close()
+        download2 = st.download_button(
+            label="Download arquivo Excel",
+            data=buffer,
+            file_name='complexidade_sdic.xlsx',
+            mime='application/ms-excel'
+        )
 
 
-
-gridOptions = gb.build()
-
+pagination = st.container()
 
 bottom_menu = st.columns((4, 1, 1))
 with bottom_menu[2]:
@@ -248,27 +271,19 @@ with bottom_menu[1]:
     total_pages = (
         int(len(df_plot) / batch_size) if int(len(df_plot) / batch_size) > 0 else 1
     )
-    if len(df_plot) % batch_size >=1:
-        total_pages+=1
     current_page = st.number_input(
         "Página", min_value=1, max_value=total_pages, step=1
     )
 with bottom_menu[0]:
-    st.markdown(f"Página **{current_page}** of **{total_pages}** ")
+    st.markdown(f"Página **{current_page}** de **{total_pages}** ")
 
-pages = paginar_df(df_plot.sort_values(by='rank').reset_index(drop=True), batch_size)
 
-if len(df_plot)==0:
-    AgGrid(
-        df_plot,
-        gridOptions=gridOptions
-        ,reload_data=True,fit_columns_on_grid_load=True
-    )
-else:
-    AgGrid(
-        pages[current_page - 1],
-        gridOptions=gridOptions
-        ,reload_data=True,fit_columns_on_grid_load=True
-    )
+
+pages = paginar_df(df_plot, batch_size)
+try:
+    pagination.dataframe(data=pages[current_page - 1], use_container_width=True)
+except IndexError:
+    pagination.dataframe(data=pages, use_container_width=True)
+
 
 

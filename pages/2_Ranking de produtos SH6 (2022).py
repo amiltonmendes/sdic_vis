@@ -221,6 +221,7 @@ if bt_redirecionar:
 busca = st.text_input(label="Digite o código SH6 ou a descrição da posição NCM que você deseja")
 if busca != "":
     df_plot = df_plot[(df_plot.hs_product_code.str.contains(busca)) | (df_plot.no_sh4.str.contains(busca))]
+    df_plot = df_plot.reset_index(drop=True)
 
 
 top_menu = st.columns(4)
