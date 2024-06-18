@@ -147,7 +147,7 @@ with tab2:
     peso_dcr = row[1].number_input('DCR',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.4 Crescimento de importações globais(2013-2021)</div>',unsafe_allow_html=True,help="Peso do crescimento das importações globais do produto, calculado a partir da subtração das importações totais do ano de 2021 pelas do ano de 2013.")
+    row[0].markdown('##### <div style="text-align: right;">2.4 Crescimento de importações globais(2013-2021)</div>',unsafe_allow_html=True,help="Peso do crescimento das importações globais do produto, calculado a partir da subtração das importações totais do ano de 2022 pelas do ano de 2013.")
     peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
