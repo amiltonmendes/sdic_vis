@@ -66,9 +66,10 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
     #pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted
     ##Crescimento
     #retorno = retorno.merge(pd.read_csv('./raw_data_import_total_2013.csv',dtype={'hs_product_code': str}),on='hs_product_code')
-    ##retorno['growth'] = (retorno['import_value_total']-retorno['import_value_total_2013'])/retorno['import_value_total_2013']
-    ##retorno['growth'] = retorno['growth']*100
-    ##retorno['growth_normalized'] = normalize(retorno,'growth')
+    retorno['growth'] = (retorno['import_value_total']-retorno['import_value_total_2013'])/retorno['import_value_total_2013']
+    retorno['growth'] = retorno['growth']*100
+    retorno['growth_normalized'] = normalize(retorno,'growth')
+    
     retorno['import_value_total'] = retorno['import_value_total']/1000000
 
 
@@ -82,7 +83,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 def paginar_df(input_df,linhas):
     df = input_df.copy().drop_duplicates()
     df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
-                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto','growth':'Crescimento (2013-2022)',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
     try:
         df_ret = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
@@ -145,9 +146,9 @@ with tab2:
     row[0].markdown('##### <div style="text-align: right;">2.3 Desvantagem comparativa revelada</div>',unsafe_allow_html=True,help="Peso da desvantagem comparativa revelada (DCR).\nValores de DCR acima de 1 indicam que o produto representa mais para a pauta importadora brasileira do que a média mundial, ou seja, o país é dependente de importações em relação a esse produto.")
     peso_dcr = row[1].number_input('DCR',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
-    #row = st.columns([2,1,4])
-    #row[0].markdown('##### <div style="text-align: right;">2.4 Crescimento de importações globais(2013-2021)</div>',unsafe_allow_html=True,help="Peso do crescimento das importações globais do produto, calculado a partir da subtração das importações totais do ano de 2021 pelas do ano de 2013.")
-    #peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
+    row = st.columns([2,1,4])
+    row[0].markdown('##### <div style="text-align: right;">2.4 Crescimento de importações globais(2013-2021)</div>',unsafe_allow_html=True,help="Peso do crescimento das importações globais do produto, calculado a partir da subtração das importações totais do ano de 2021 pelas do ano de 2013.")
+    peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
     row[0].markdown('##### <div style="text-align: right;">2.5 Oportunidades de integração com América do Sul</div>',unsafe_allow_html=True,help="Oportunidades de integração com América do Sul. Esse índice é calculado a partir da multiplicação do percentual das importações cujas origens não sejam o Brasil, ou seja, que poderiam ser supridas pelo Brasil, pela desvantagem comparativa relevada do produto, calculado considerando-se o bloco América do Sul, exceto o Brasil, como um país ")
@@ -188,8 +189,8 @@ with tab4:
 componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
     (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])
     
-componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
-                   + peso_dcr*df['rcd_normalized'] + peso_impacto_ams*df['impacto_ams'] ) 
+componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
+                   + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] + peso_impacto_ams*df['impacto_ams'] ) 
 
 #componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_gt_mean'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
 componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_normalized'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
@@ -203,14 +204,14 @@ df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades 
 
 
 #df_plot = df[['valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
-df_plot = df[['valor_indice','hs_product_code','no_sh4','impacto_ams' ,'export_value','rca','distancia','import_value','import_value_total','dcr','pci','cog','pgi','pei']]
+df_plot = df[['valor_indice','hs_product_code','no_sh4','impacto_ams' ,'export_value','rca','growth','distancia','import_value','import_value_total','dcr','pci','cog','pgi','pei']]
 
 
 df_plot = df_plot.drop_duplicates()
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 #df_plot = df_plot.drop('valor_indice',axis=1)
 #df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
-df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','distancia','import_value','import_value_total','dcr','pci','cog','pgi','pei','valor_indice']]
+df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','distancia','import_value','import_value_total','growth','dcr','pci','cog','pgi','pei','valor_indice']]
 
 
 if bt_redirecionar:

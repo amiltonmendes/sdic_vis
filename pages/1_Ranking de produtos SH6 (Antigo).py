@@ -84,7 +84,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 def paginar_df(input_df,linhas):
     df = input_df.copy().drop_duplicates()
     df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
-                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto','growth':'Crescimento (2013-2022)',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
     try:
         df_ret = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
