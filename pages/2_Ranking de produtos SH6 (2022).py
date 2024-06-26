@@ -66,6 +66,8 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
     #pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted
     ##Crescimento
     #retorno = retorno.merge(pd.read_csv('./raw_data_import_total_2013.csv',dtype={'hs_product_code': str}),on='hs_product_code')
+    retorno['import_value_total_2013'] = retorno['import_value_total_2013'].fillna(0)
+
     retorno['growth'] = (retorno['import_value_total']-retorno['import_value_total_2013'])/retorno['import_value_total_2013']
     retorno['growth'] = retorno['growth']*100
     retorno['growth_normalized'] = normalize(retorno,'growth')
