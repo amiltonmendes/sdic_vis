@@ -52,8 +52,8 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
     ##pgi
 
     retorno = retorno.merge(pd.read_csv('./raw_data_pgish6_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
-    retorno['pgi_normalized_inverted'] = -retorno['pgi_standirized_less_one']
-
+    retorno['pgi_normalized_inverted'] = retorno['pgi_standirized_less_one']
+    #st.write(retorno[['pgi_standirized','pgi_standirized_less_one']])
     ##pei
     retorno = retorno.merge(pd.read_csv('./raw_data_pei_percapita_sh6_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
     retorno['pei_normalized_inverted'] = (1-retorno['pei_standarized'])
@@ -189,21 +189,21 @@ with tab4:
     peso_pei = row[1].number_input('PEI',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
 
 
-componente_capacidades_atuais = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
+df['componente_capacidades_atuais'] = (peso_capacidade_atuais/ (peso_valor_exportado+peso_vcr+peso_densidade_produto))*\
     (peso_valor_exportado*df['export_value_normalized'] + peso_vcr*df['rca_normalized'] + peso_densidade_produto*df['density_normalized'])
     
-componente_oportunidades = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
+df['componente_oportunidades'] = (peso_oportunidaes/(peso_importacao+peso_importacao_global+peso_dcr+peso_crescimento+peso_impacto_ams))*(peso_importacao*df['import_value_normalized'] + peso_importacao_global*df['import_value_total_normalized']\
                    + peso_dcr*df['rcd_normalized'] +peso_crescimento*df['growth_normalized'] + peso_impacto_ams*df['impacto_ams'] ) 
 
 #componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_gt_mean'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
-componente_ganhos = (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_normalized'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
+df['componente_ganhos']= (peso_ganhos/(peso_indice_ganho_oportunidade+peso_indice_complexidade))*(peso_ganhos*df['pci_normalized'] + peso_indice_ganho_oportunidade*df['cog_normalized'])  
 
 
-componentes_externalidades = (peso_externalidades/(peso_pei+peso_pgi))*(peso_pei*df['pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted'] )
+df['componentes_externalidades'] = (peso_externalidades/(peso_pei+peso_pgi))*(peso_pei*df['pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted'] )
 
 
 
-df['valor_indice'] =  componente_capacidades_atuais +  componente_oportunidades + componente_ganhos + componentes_externalidades
+df['valor_indice'] =  df['componente_capacidades_atuais'] +  df['componente_oportunidades'] + df['componente_ganhos'] + df['componentes_externalidades']
 
 
 #df_plot = df[['valor_indice','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','growth','density','import_value','import_value_total','rcd','pci','cog','pgi','pei']]
@@ -214,6 +214,11 @@ df_plot = df_plot.drop_duplicates()
 df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 #df_plot = df_plot.drop('valor_indice',axis=1)
 #df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
+
+df['rank'] = df['valor_indice'].rank(method='dense',ascending=False)
+#st.write(df[['rank','hs_product_code','componente_capacidades_atuais','componente_oportunidades','componente_ganhos','componentes_externalidades','valor_indice']])
+
+
 df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','distancia','import_value','import_value_total','growth','dcr','pci','cog','pgi','pei','valor_indice']]
 
 
