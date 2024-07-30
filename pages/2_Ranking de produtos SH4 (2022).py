@@ -52,7 +52,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
     ##pgi
 
     retorno = retorno.merge(pd.read_csv('./raw_data_pgish4_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
-    retorno['pgi_normalized_inverted'] = -retorno['pgi_standirized_less_one']
+    retorno['pgi_normalized_inverted'] = retorno['pgi_standirized_less_one']
 
     ##pei
     retorno = retorno.merge(pd.read_csv('./raw_data_pei_percapita_sh4_rev22.csv',dtype={'hs_product_code': str}),on='hs_product_code')
