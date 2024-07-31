@@ -35,7 +35,7 @@ def normalize_log(df,coluna):
 @st.cache_data
 def load_data(rca,pei_percapita,considerar_pci_eci):
     locale._override_localeconv = {'thousands_sep': '.'}
-    retorno = pd.read_csv('./raw_final_sh6_prod_rev22.csv',dtype={'hs_product_code': str})
+    retorno = pd.read_csv('./raw_final_sh6_prod_rev17.csv',dtype={'hs_product_code': str})
 
 
     #retorno['hs_product_code'] = retorno['hs_product_code'].apply(str)
@@ -66,15 +66,15 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
     #pei_normalized_inverted'] + peso_pgi*df['pgi_normalized_inverted
     ##Crescimento
     #retorno = retorno.merge(pd.read_csv('./raw_data_import_total_2013.csv',dtype={'hs_product_code': str}),on='hs_product_code')
-    retorno['growth'] = None
-    retorno.loc[retorno['import_value_total_2013'].isnull(),'growth'] = 0
-    retorno.loc[retorno['import_value_total_2013']<=0,'growth'] = 100
-    retorno.loc[retorno['import_value_total_2013']>0,'growth'] = (retorno.loc[retorno['import_value_total_2013']!=0,'import_value_total']-retorno.loc[retorno['import_value_total_2013']!=0,'import_value_total_2013'])*100/-retorno.loc[retorno['import_value_total_2013']!=0,'import_value_total_2013']
+    retorno['growth'] = (((retorno['import_value_total']-retorno['import_value_total_2018'])*100/retorno['import_value_total_2018']))
     retorno['growth_normalized'] = normalize(retorno,'growth')
+    #retorno['growth'] = retorno['growth'].astype(str)
+    retorno['growth'] = retorno['growth'].map('{:,.2f}%'.format)
 
 
     retorno['import_value_total'] = retorno['import_value_total']/1000000
 
+    #retorno['density_normalized'] = 1- retorno['density_normalized']
 
 
 
@@ -86,7 +86,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 def paginar_df(input_df,linhas):
     df = input_df.copy().drop_duplicates()
     df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS6', 'no_sh4' : 'Descrição SH6','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
-                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto','growth':'Crescimento (2013-2022)',
+                            'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto','growth':'Crescimento (2018-2022)',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
     try:
         df_ret = [df.loc[i : i - 1 + linhas, :] for i in range(0, len(df), linhas)]
@@ -111,7 +111,7 @@ df = load_data(considerar_rca,considerar_pei_percapita,considerar_pci_eci)
 
 
 
-tab1, tab2, tab3, tab4 = st.tabs(["1. Capacidades atuais", "2. Oportunidades", "3. Ganhos de complexidade","4. Externalidades"])
+tab1, tab2, tab3, tab4 = st.tabs(["1. Capacidades atuais", "2. Oportunidades de mercado", "3. Complexidade econômica","4. Externalidades"])
 
 with tab1:
 
@@ -119,7 +119,7 @@ with tab1:
     row[0].markdown('#### <div style="text-align: right;">1. <b>Capacidades atuais</b></div>',unsafe_allow_html=True,help='Peso dado ao grupo das variáveis abaixo no cálculo do ranking')
     peso_capacidade_atuais = row[1].number_input('capacidade',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed',help='teste')
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">1.1 Valor exportado</div>',unsafe_allow_html=True, help="Peso do valor das exportações brasileiras do produto")
+    row[0].markdown('##### <div style="text-align: right;">1.1 Valor exportado pelo Brasil</div>',unsafe_allow_html=True, help="Peso do valor das exportações brasileiras do produto")
     peso_valor_exportado = row[1].number_input('Exportação',min_value=0.0,max_value=1.0,value=0.33,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
@@ -133,16 +133,16 @@ with tab1:
 
 with tab2:
     row = st.columns([2,1,4])
-    row[0].markdown('#### <div style="text-align: right;">2. Oportunidades</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
+    row[0].markdown('#### <div style="text-align: right;">2. Oportunidades de mercado</div>',unsafe_allow_html=True,help="Peso dado ao grupo das variáveis abaixo no cálculo do ranking.")
     peso_oportunidaes=row[1].number_input('Oportunidades',min_value=0.0,max_value=1.0,value=0.25,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.1 Valor importado</div>',unsafe_allow_html=True,help="Peso das importações brasileiras do produto")
+    row[0].markdown('##### <div style="text-align: right;">2.1 Valor importado pelo Brasil</div>',unsafe_allow_html=True,help="Peso das importações brasileiras do produto")
     peso_importacao = row[1].number_input('peso_importacao',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.2 Valor importado (Mundo)</div>',unsafe_allow_html=True,help="Peso das importações mundiais do produto")
+    row[0].markdown('##### <div style="text-align: right;">2.2 Tamanho do mercado mundial</div>',unsafe_allow_html=True,help="Peso das importações mundiais do produto")
     peso_importacao_global = row[1].number_input('Importacao Global',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
@@ -150,7 +150,7 @@ with tab2:
     peso_dcr = row[1].number_input('DCR',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">2.4 Crescimento de importações globais(2013-2021)</div>',unsafe_allow_html=True,help="Peso do crescimento das importações globais do produto, calculado a partir da subtração das importações totais do ano de 2022 pelas do ano de 2013.")
+    row[0].markdown('##### <div style="text-align: right;">2.4 Crescimento do mercado mundial(2018-2022)</div>',unsafe_allow_html=True,help="Peso do crescimento das importações globais do produto, calculado a partir da subtração das importações totais do ano de 2022 pelas do ano de 2018.")
     peso_crescimento = row[1].number_input('Crescimento',min_value=0.0,max_value=1.0,value=0.2,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
@@ -161,7 +161,7 @@ with tab2:
 
 with tab3:
     row = st.columns([2,1,4])
-    row[0].markdown('#### <div style="text-align: right;">3. Ganhos de complexidade</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
+    row[0].markdown('#### <div style="text-align: right;">3. Complexidade econômica</div>',unsafe_allow_html=True,help="Peso dado ao grupo de variáveis abaixo no cálculo do ranking.")
     peso_ganhos=row[1].number_input('Ganhos',min_value=0.0,max_value=1.0,value=0.4,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
@@ -181,11 +181,11 @@ with tab4:
     peso_externalidades = row[1].number_input('externalidades',min_value=0.0,max_value=1.0,value=0.1,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">4.1 Product Gini index</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de gini do produto ( PGI ). O PGI é calculado a partir da média do índice de gini dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. O índice de gini mede o quão desigual é a distribuição de renda de um país, ou seja, quanto maior, mais desigualdade de renda um país possui. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor desigualdade de renda.")
+    row[0].markdown('##### <div style="text-align: right;">4.1 Índice de Gini do produto</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de gini do produto ( PGI ). O PGI é calculado a partir da média do índice de gini dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. O índice de gini mede o quão desigual é a distribuição de renda de um país, ou seja, quanto maior, mais desigualdade de renda um país possui. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor desigualdade de renda.")
     peso_pgi = row[1].number_input('peso_pgi',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
 
     row = st.columns([2,1,4])
-    row[0].markdown('##### <div style="text-align: right;">4.2 Product Emission Intensity index</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de emissão de produto ( PEI ). O PEI é calculado a partir da média de emissões gases de efeito estufa dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor emissão de gases de efeito estufa.")
+    row[0].markdown('##### <div style="text-align: right;">4.2 Índice de intensidade de emissões do produto</div>',unsafe_allow_html=True,help="Peso de 1 - o Índice de emissão de produto ( PEI ). O PEI é calculado a partir da média de emissões gases de efeito estufa dos países exportadores de determinado produto, ponderada pela importância desse produto na pauta exportadora daqueles países. Quanto mais peso for atribuído a esse índice, mais o ranking beneficiará produtos que estão associados a uma menor emissão de gases de efeito estufa.")
     peso_pei = row[1].number_input('PEI',min_value=0.0,max_value=1.0,value=0.5,label_visibility='collapsed')
 
 
@@ -216,7 +216,6 @@ df_plot['rank'] = df_plot['valor_indice'].rank(method='dense',ascending=False)
 #df_plot = df_plot[['rank','hs_product_code','no_sh4','dcr_bloco','proporcao_importacao_origem_brasil','export_value','rca','density','import_value','import_value_total','growth','rcd','pci','cog','pgi','pei','valor_indice']]
 
 df['rank'] = df['valor_indice'].rank(method='dense',ascending=False)
-#st.write(df[['rank','hs_product_code','componente_capacidades_atuais','componente_oportunidades','componente_ganhos','componentes_externalidades','valor_indice']])
 
 
 df_plot = df_plot[['rank','hs_product_code','no_sh4','impacto_ams','export_value','rca','distancia','import_value','import_value_total','growth','dcr','pci','cog','pgi','pei','valor_indice']]
