@@ -84,7 +84,7 @@ def load_data(rca,pei_percapita,considerar_pci_eci):
 @st.cache_data
 def paginar_df(input_df,linhas):
     df = input_df.copy().drop_duplicates()
-    df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
+    df = df.rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4','impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Proximidade','import_value' : 'Importações brasileiras em Mi',
                             'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto','growth' : 'Crescimento (2013-2021)',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})
     try:
@@ -251,7 +251,7 @@ with top_menu[3]:
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         df_plot\
         .rename(columns={'rank' : 'Posição', 'hs_product_code' : 'HS4', 'no_sh4' : 'Descrição SH4',
-                         'impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Distância','import_value' : 'Importações brasileiras em Mi',
+                         'impacto_ams' : 'Integração AMS','rca' : 'VCR', 'distancia':'Proximidade','import_value' : 'Importações brasileiras em Mi',
                             'import_value_total' : 'Importações Mundo em Mi','dcr' : 'DCR', 'pci' : 'Complexidade do produto',
                             'cog' : 'Ganho de oportunidade', 'pgi' : 'PGI','pei':'PEI','export_value' : 'Exportações Brasileiras','valor_indice' : 'Índice'})\
                                 .to_excel(writer, sheet_name='Planilha Complexidade', index=False)
